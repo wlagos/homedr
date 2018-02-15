@@ -56,7 +56,40 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "AppUser",
+      "foreignKey": "userId",
+      "options": {
+        "nestRemoting": true
+      }
+    },
+    "lastUpdater": {
+      "type": "belongsTo",
+      "model": "AppUser",
+      "foreignKey": "lastUpdatedUserId",
+      "options": {
+        "nestRemoting": true
+      }
+    },
+    "provider": {
+      "type": "belongsTo",
+      "model": "AppUser",
+      "foreignKey": "providerId",
+      "options": {
+        "nestRemoting": true
+      }
+    },
+    "dispatcher": {
+      "type": "belongsTo",
+      "model": "AppUser",
+      "foreignKey": "dispatcherId",
+      "options": {
+        "nestRemoting": true
+      }
+    }
+  },
   "acls": [],
   "methods": {}
 }

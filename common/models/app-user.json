@@ -62,7 +62,16 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "bookings": {
+      "type": "hasMany",
+      "model": "Booking",
+      "foreignKey": "userId",
+      "options": {
+        "nestRemoting": true
+      }
+    }
+  },
   "acls": [],
   "methods": {}
 }
