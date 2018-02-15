@@ -15,7 +15,7 @@
   },
   "User": {
     "dataSource": "db",
-    "public": false    
+    "public": false
   },
   "AccessToken": {
     "dataSource": "mongodb",
@@ -37,6 +37,10 @@
     "public": false
   },
   "AppUser": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "Booking": {
     "dataSource": "mongodb",
     "public": true
   }
