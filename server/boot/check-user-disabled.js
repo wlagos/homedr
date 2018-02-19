@@ -22,6 +22,9 @@ module.exports = async function (app, cb) {
         if (userInstance.isDisabled) {
           return next(createError(403, 'Your account has been disabled!'));
         }
+        if (ctx.req.remotingContext.args.options) {
+          ctx.req.remotingContext.args.options.currentUser = userInstance;
+        }
         next();
       } catch (error) {
         return next(error);
