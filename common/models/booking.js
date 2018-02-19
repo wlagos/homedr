@@ -23,6 +23,7 @@ module.exports = function (Booking) {
       process.nextTick(function () {
         done();
       });
+      return;
     }
     let filter = {
       principalId: this.dispatcherId,
