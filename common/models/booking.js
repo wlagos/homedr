@@ -45,4 +45,34 @@ module.exports = function (Booking) {
     }
   }
   Booking.validateAsync('dispatcherId', dispatcherRole, { message: 'Invalid dispatcher Id' });
+
+  // Function to validate provider id with role=PROVIDER
+  async function providerRole(err, done) {
+    const Role = Booking.app.models.Role;
+    if (!this.providerId) {
+      process.nextTick(function () {
+        done();
+      });
+      return;
+    }
+    let filter = {
+      principalId: this.providerId,
+      principalType: 'USER'
+    }
+    try {
+      let roles = await Role.getRoles(filter, { returnOnlyRoleNames: true });
+      process.nextTick(function () {
+        if (!_.includes(roles, 'PROVIDER')) {
+          err();
+        }
+        done();
+      });
+    } catch (error) {
+      process.nextTick(function () {
+        err();
+        done();
+      });
+    }
+  }
+  Booking.validateAsync('providerId', providerRole, { message: 'Invalid provider Id' });
 };
