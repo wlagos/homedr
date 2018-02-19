@@ -1,5 +1,7 @@
 'use strict';
 
+const StateLists = require('../states');
+
 module.exports = function (AppUser) {
   // Function to validat birth month
   function birthMonthValidator(err) {
@@ -26,5 +28,8 @@ module.exports = function (AppUser) {
   AppUser.validate('zip', zipValidator, { message: 'Invalid zip' });
 
   // Validate state length to 2
-  AppUser.validatesLengthOf('state', { min: 2, max: 2 }, {message: 'Must be of size 2!'});
+  AppUser.validatesLengthOf('state', { min: 2, max: 2 });
+
+  // Validate state from state list
+  AppUser.validatesInclusionOf('state', { in: StateLists, message: 'Invalid state!' });
 };
