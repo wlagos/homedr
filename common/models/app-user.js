@@ -24,5 +24,7 @@ module.exports = function (AppUser) {
     if (this.zip && this.zip.toString().length > 5) err();
   }
   AppUser.validate('zip', zipValidator, { message: 'Invalid zip' });
-  
+
+  // Validate state length to 2
+  AppUser.validatesLengthOf('state', { min: 2, max: 2 }, {message: 'Must be of size 2!'});
 };

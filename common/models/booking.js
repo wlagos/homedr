@@ -6,4 +6,7 @@ module.exports = function (Booking) {
     if (this.zip && this.zip.toString().length > 5) err();
   }
   Booking.validate('zip', zipValidator, { message: 'Invalid zip' });
+
+  // Validate state length to 2
+  Booking.validatesLengthOf('state', { min: 2, max: 2 }, {message: 'Must be of size 2!'});
 };
