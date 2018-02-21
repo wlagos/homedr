@@ -75,4 +75,13 @@ module.exports = function (Booking) {
     }
   }
   Booking.validateAsync('providerId', providerRole, { message: 'Invalid provider Id' });
+
+  // last user that edited booking
+  Booking.observe('before save', (ctx, next) => {
+    let data = ctx.instance || ctx.data;
+    if (ctx.options && ctx.options.accessToken) {
+      data.lastUpdatedUserId = ctx.options.accessToken.userId
+    }
+    next();
+  });
 };
