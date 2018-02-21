@@ -23,7 +23,7 @@ module.exports = function (AppUser) {
 
   // Function to validate zipcode
   function zipValidator(err) {
-    if (this.zip && this.zip.toString().length > 5) err();
+    if (this.zip && this.zip.toString().length != 5) err();
   }
   AppUser.validate('zip', zipValidator, { message: 'Invalid zip' });
 
