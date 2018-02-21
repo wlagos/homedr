@@ -59,4 +59,21 @@ module.exports = function (AppUser) {
 
   // Validate birth year
   AppUser.validate('birthYear', validateBirthday, { message: 'Invalid year!' });
+
+  // Last Login Date
+  AppUser.afterRemote('login', (ctx, instance, next) => {
+    next();
+    let userId = instance.userId;
+
+    const setLoginDate = async () => {
+      try {
+        let userInstance = await AppUser.findById(userId);
+        let updatedInstance = await userInstance.updateAttribute('lastLoginDate', moment().toISOString());
+      } catch (error) {
+        console.error('ERROR > SAVING LOGIN DATE > ', error);
+      }
+    }
+
+    setLoginDate();
+  });
 };
