@@ -32,7 +32,7 @@ module.exports = function (Booking) {
     try {
       let roles = await Role.getRoles(filter, { returnOnlyRoleNames: true });
       process.nextTick(function () {
-        if (!_.includes(roles, 'DISPATCHER')) {
+        if (!_.intersection(roles, ['DISPATCHER', 'ADMIN']).length) {
           err();
         }
         done();
@@ -62,7 +62,7 @@ module.exports = function (Booking) {
     try {
       let roles = await Role.getRoles(filter, { returnOnlyRoleNames: true });
       process.nextTick(function () {
-        if (!_.includes(roles, 'PROVIDER')) {
+        if (!_.intersection(roles, ['PROVIDER', 'ADMIN']).length) {
           err();
         }
         done();
