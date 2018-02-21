@@ -1,5 +1,6 @@
 'use strict';
 
+const moment = require('moment');
 const StateLists = require('../states');
 
 module.exports = function (AppUser) {
@@ -32,4 +33,30 @@ module.exports = function (AppUser) {
 
   // Validate state from state list
   AppUser.validatesInclusionOf('state', { in: StateLists, message: 'Invalid state!' });
+
+  // Validate birthdate
+  function validateBirthday(err) {
+    if (!this.birthDate || !this.birthMonth || !this.birthYear) {
+      return err();
+    }
+    let combineDate = `${this.birthDate}/${this.birthMonth}/${this.birthYear}`;
+    let format = 'DD/MM/YYYY';
+    if (!moment(combineDate, format).isValid()) {
+      return err();
+    }
+    let current = moment();
+    let combined = moment(combineDate, format);
+    if (current.diff(combined, 'years') < 18) {
+      err();
+    }
+  }
+
+  // Validate birthdate
+  AppUser.validate('birthDate', validateBirthday, { message: 'Invalid date!' });
+
+  // Validate birth month
+  AppUser.validate('birthMonth', validateBirthday, { message: 'Invalid month!' });
+
+  // Validate birth year
+  AppUser.validate('birthYear', validateBirthday, { message: 'Invalid year!' });
 };
