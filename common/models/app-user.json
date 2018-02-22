@@ -79,6 +79,13 @@
       }
     }
   },
-  "acls": [],
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "ADMIN",
+      "permission": "ALLOW"
+    }
+  ],
   "methods": {}
 }

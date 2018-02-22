@@ -1,7 +1,102 @@
 'use strict';
 
+const _ = require('lodash');
 const moment = require('moment');
 const StateLists = require('../states');
+
+const ROLES = ['PATIENT', 'DISPATCHER', 'PROVIDER', 'ADMIN'];
+
+function createError(code, message) {
+  let errorObj = new Error(message);
+  errorObj.statusCode = code || 400;
+  return errorObj;
+}
+
+// Assign Role Function
+function assignRole(data, options, cb) {
+  const AppUser = this;
+  const Role = this.app.models.Role;
+  const RoleMapping = this.app.models.RoleMapping;
+
+  if (!data.userId) {
+    return cb(createError(403, 'Missing user id.'));
+  }
+  if (!data.role) {
+    return cb(createError(403, 'Missing role.'));
+  }
+  if (!_.includes(ROLES, data.role)) {
+    return cb(createError(403, 'Invalid role.'));
+  }
+
+  let roleInstance, roleMappingInstance;
+
+  // Get Role Function
+  const getRole = async () => {
+    let filter = {
+      where: {
+        name: data.role
+      }
+    }
+    try {
+      roleInstance = await Role.findOne(filter, options);
+      if (!roleInstance) {
+        return cb(createError(404, 'Role not found!'));
+      }
+    } catch (error) {
+      console.error('ERROR > GETTING ROLE > ', error);
+      return cb(error);
+    }
+  }
+
+  const getRolMapping = async () => {
+    let filter = {
+      where: {
+        principalId: data.userId,
+        principalType: RoleMapping.USER
+      }
+    }
+
+    try {
+      roleMappingInstance = await RoleMapping.findOne(filter, options);
+    } catch (error) {
+      console.error('ERROR > GETTING ROLE MAPPING > ', error);
+      return cb(error);
+    }
+  }
+
+  const assignNewRole = async () => {
+    if (roleMappingInstance) {
+      try {
+        let updatedInstance = await roleMappingInstance.updateAttribute('roleId', roleInstance.id, options);
+      } catch (error) {
+        console.error('ERROR > GETTING ROLE MAPPING > ', error);
+        return cb(error);
+      }
+    } else {
+      let createData = {
+        principalId: data.userId,
+        roleId: roleInstance.id,
+        principalType: RoleMapping.USER
+      }
+      try {
+        let instance = await RoleMapping.create(createData, options);
+      } catch (error) {
+        console.error('ERROR > CREATING ROLE MAPPING > ', error);
+        return cb(error);
+      }
+    }
+  }
+  async function _assignRole() {
+    await getRole();
+    await getRolMapping();
+    await assignNewRole();
+    cb(null, {
+      statusCode: 200,
+      meessage: 'Role successfully assigned to user!'
+    })
+  }
+  _assignRole();
+}
 
 module.exports = function (AppUser) {
   // Function to validat birth month
@@ -75,5 +170,19 @@ module.exports = function (AppUser) {
     }
 
     setLoginDate();
+  });
+
+  // Custom APU to assign role to user
+  AppUser.assignRole = assignRole;
+  AppUser.remoteMethod('assignRole', {
+    accepts: [
+      { arg: 'data', type: 'object', require: true, http: { source: 'body' } },
+      { arg: 'options', type: 'object', http: 'optionsFromRequest' }
+    ],
+    http: {
+      verb: 'POST',
+      path: '/assignRole'
+    },
+    returns: { arg: 'data', type: 'object', root: true }
   });
 };
