@@ -223,14 +223,31 @@ module.exports = function (AppUser) {
     verifyUser();
   });
 
-  AppUser.afterRemote('prototype.verify', function(ctx, user, next) {
+  AppUser.afterRemote('prototype.verify', function (ctx, user, next) {
     ctx.res.render('response', {
-      title: 'A Link to reverify your identity has been sent '+
+      title: 'A Link to reverify your identity has been sent ' +
         'to your email successfully',
-      content: 'Please check your email and click on the verification link '+
+      content: 'Please check your email and click on the verification link ' +
         'before logging in',
       redirectTo: '/',
       redirectToLinkText: 'Log in'
+    });
+  });
+
+  AppUser.on('resetPasswordRequest', function (info) {
+    const url = `${process.env.APP_URL}/reset-password?access_token=${info.accessToken.id}`;
+    const html = `Click <a href="${url}">here</a> to reset your password`;
+
+    let mailData = {
+      to: info.email,
+      from: process.env.SMTP_FROM,
+      subject: 'Password reset',
+      html: html
+    }
+    
+    AppUser.app.models.Email.send(mailData, (error) => {
+      if (error) return console.log('ERROR > SENDING PASSWORD RESET EMAIL > ', error);
+      console.log('SENDING > PASSWORD RESET EMAIL TO > ', info.email);
     });
   });
 };
