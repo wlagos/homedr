@@ -244,10 +244,25 @@ module.exports = function (AppUser) {
       subject: 'Password reset',
       html: html
     }
-    
+
     AppUser.app.models.Email.send(mailData, (error) => {
       if (error) return console.log('ERROR > SENDING PASSWORD RESET EMAIL > ', error);
       console.log('SENDING > PASSWORD RESET EMAIL TO > ', info.email);
     });
+  });
+
+  AppUser.afterRemote('login', function (ctx, user, next) {
+    // Update lastLoginDate Field
+    const updateLoginDate = async () => {
+      const currentDate = new Date()
+      try {
+        let updatedInstance = user.updateAttribute('lastLoginDate', currentDate);
+        next();
+      } catch (error) {
+        console.error('ERROR > UPDATING LAST LOGIN > ', error);
+        return next(error);
+      }
+    }
+    updateLoginDate();
   });
 };
