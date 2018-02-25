@@ -39,10 +39,16 @@
   },
   "AppUser": {
     "dataSource": "mongodb",
-    "public": true
+    "public": true,
+    "options": {
+      "emailVerificationRequired": true
+    }
   },
   "Booking": {
     "dataSource": "mongodb",
     "public": true
+  },
+  "Email": {
+    "dataSource": "email"
   }
 }

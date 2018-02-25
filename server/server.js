@@ -3,8 +3,12 @@
 require('dotenv').config()
 const loopback = require('loopback');
 const boot = require('loopback-boot');
+const path = require('path');
 
 let app = module.exports = loopback();
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 app.start = function() {
   // start the web server

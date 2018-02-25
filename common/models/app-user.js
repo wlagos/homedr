@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const moment = require('moment');
+const path = require('path');
 const StateLists = require('../states');
 
 const ROLES = ['PATIENT', 'DISPATCHER', 'PROVIDER', 'ADMIN'];
@@ -132,7 +133,7 @@ module.exports = function (AppUser) {
   // Validate birthdate
   function validateBirthday(err) {
     if (!this.birthDate || !this.birthMonth || !this.birthYear) {
-      return err();
+      return;
     }
     let combineDate = `${this.birthDate}/${this.birthMonth}/${this.birthYear}`;
     let format = 'DD/MM/YYYY';
@@ -184,5 +185,52 @@ module.exports = function (AppUser) {
       path: '/assignRole'
     },
     returns: { arg: 'data', type: 'object', root: true }
+  });
+
+  // Hook to send registration email
+  AppUser.afterRemote('create', function (ctx, user, next) {
+    if (user.emailVerified) {
+      return next();
+    }
+    let options = {
+      host: 'localhost',
+      port: '3000',
+      type: 'email',
+      to: user.email,
+      from: process.env.SMTP_FROM,
+      subject: 'Thanks for registering.',
+      template: path.resolve(__dirname, '../../server/views/verify.ejs'),
+      redirect: '/verified',
+      user: user
+    };
+
+    const verifyUser = async () => {
+      try {
+        let userVerification = await user.verify(options);
+        ctx.res.render('response', {
+          title: 'Signed up successfully',
+          content: 'Please check your email and click on the verification link ' +
+            'before logging in.',
+          redirectTo: '/',
+          redirectToLinkText: 'Log in'
+        });
+      } catch (err) {
+        AppUser.deleteById(user.id);
+        return next(err)
+      }
+    }
+
+    verifyUser();
+  });
+
+  AppUser.afterRemote('prototype.verify', function(ctx, user, next) {
+    ctx.res.render('response', {
+      title: 'A Link to reverify your identity has been sent '+
+        'to your email successfully',
+      content: 'Please check your email and click on the verification link '+
+        'before logging in',
+      redirectTo: '/',
+      redirectToLinkText: 'Log in'
+    });
   });
 };
