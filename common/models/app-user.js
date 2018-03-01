@@ -207,13 +207,7 @@ module.exports = function (AppUser) {
     const verifyUser = async () => {
       try {
         let userVerification = await user.verify(options);
-        ctx.res.render('response', {
-          title: 'Signed up successfully',
-          content: 'Please check your email and click on the verification link ' +
-            'before logging in.',
-          redirectTo: '/',
-          redirectToLinkText: 'Log in'
-        });
+        next();
       } catch (err) {
         AppUser.deleteById(user.id);
         return next(err)
