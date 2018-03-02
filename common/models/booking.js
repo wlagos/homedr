@@ -84,4 +84,10 @@ module.exports = function (Booking) {
     }
     next();
   });
+
+  // last user that edited booking
+  Booking.beforeRemote('create', (ctx, instance, next) => {
+    ctx.req.body.userId = ctx.req.accessToken.userId;
+    next();
+  });
 };

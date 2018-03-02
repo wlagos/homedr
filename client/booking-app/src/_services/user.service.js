@@ -1,10 +1,10 @@
 import { authHeader } from '../_helpers';
 import { HOST_URL, SERVER_URL } from '../utils/config';
 
-const LOGIN_URL = `/api/AppUsers/login`;
-const REGISTER_URL = `/api/AppUsers`;
-const FORGET_PASSWORD_URL = `/api/AppUsers/reset`;
-const RESET_PASSWORD_URL = `/api/AppUsers/reset-password`;
+const LOGIN_URL = `${HOST_URL}/api/AppUsers/login`;
+const REGISTER_URL = `${HOST_URL}/api/AppUsers`;
+const FORGET_PASSWORD_URL = `${HOST_URL}/api/AppUsers/reset`;
+const RESET_PASSWORD_URL = `${HOST_URL}/api/AppUsers/reset-password`;
 
 export const userService = {
   login,

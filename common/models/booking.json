@@ -19,7 +19,8 @@
     },
     "requestedOn": {
       "type": "date",
-      "required": true
+      "required": true,
+      "default": "$now"
     },
     "address1": {
       "type": "string"
@@ -56,6 +57,9 @@
     },
     "providerId": {
       "type": "string"
+    },
+    "paymentToken": {
+      "type": "object"
     }
   },
   "validations": [],
