@@ -7,6 +7,7 @@ export const userActions = {
   login,
   logout,
   register,
+  forgetPassword,
   getAll,
   delete: _delete
 };
@@ -64,6 +65,30 @@ function register(user) {
   function success(user) { return { type: userConstants.REGISTER_SUCCESS, user } }
   function failure(error) { return { type: userConstants.REGISTER_FAILURE, error } }
 }
+
+function forgetPassword(user) {
+  return dispatch => {
+    dispatch(request(user));
+
+    userService.forgetPassword(user)
+      .then(
+        user => {
+          dispatch(success(user));
+          history.push('/login');
+          dispatch(alertActions.success('Reset Password link sent to your email.!'));
+        },
+        error => {
+          dispatch(failure(error));
+          dispatch(alertActions.error(error));
+        }
+      );
+  };
+
+  function request(user) { return { type: userConstants.FORGET_PASSWORD_REQUEST, user } }
+  function success(user) { return { type: userConstants.FORGET_PASSWORD_SUCCESS, user } }
+  function failure(error) { return { type: userConstants.FORGET_PASSWORD_FAILURE, error } }
+}
+
 
 function getAll() {
   return dispatch => {

@@ -1,19 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
+import * as _ from 'lodash';
 
 import { userActions } from '../_actions';
 
-class LoginPage extends React.Component {
+import { statesList } from '../_constants';
+
+class ForgetPasswordPage extends React.Component {
   constructor(props) {
     super(props);
 
-    // reset login status
-    this.props.dispatch(userActions.logout());
-
     this.state = {
-      email: '',
-      password: '',
+      user: {
+        email: ''
+      },
       submitted: false
     };
 
@@ -21,52 +22,48 @@ class LoginPage extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleChange(e) {
-    const { name, value } = e.target;
-    this.setState({ [name]: value });
+  handleChange(event) {
+    const { name, value } = event.target;
+    const { user } = this.state;
+    this.setState({
+      user: {
+        ...user,
+        [name]: value
+      }
+    });
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
+  handleSubmit(event) {
+    event.preventDefault();
 
     this.setState({ submitted: true });
-    const { email, password } = this.state;
     const { dispatch } = this.props;
-    if (email && password) {
-      dispatch(userActions.login(email, password));
+    const { user } = this.state;
+    if (user.email) {
+      dispatch(userActions.forgetPassword(user));
     }
   }
 
   render() {
-    const { loggingIn } = this.props;
-    const { email, password, submitted } = this.state;
+    const { forgetPassword } = this.props;
+    const { user, submitted } = this.state;
     return (
-      <div className="col-md-6 col-md-offset-3">
-        <h2>Login</h2>
+      <div className="col-md-8 col-md-offset-2">
+        <h2>Forget Password</h2>
         <form name="form" onSubmit={this.handleSubmit}>
-          <div className={'form-group' + (submitted && !email ? ' has-error' : '')}>
+          <div className={'form-group' + (submitted && !user.email ? ' has-error' : '')}>
             <label htmlFor="email">Email</label>
-            <input type="text" className="form-control" name="email" value={email} onChange={this.handleChange} />
-            {submitted && !email &&
+            <input type="text" className="form-control" name="email" value={user.email} onChange={this.handleChange} />
+            {submitted && !user.email &&
               <div className="help-block">Email is required</div>
             }
           </div>
-          <div className={'form-group' + (submitted && !password ? ' has-error' : '')}>
-            <label htmlFor="password">Password</label>
-            <input type="password" className="form-control" name="password" value={password} onChange={this.handleChange} />
-            {submitted && !password &&
-              <div className="help-block">Password is required</div>
-            }
-          </div>
           <div className="form-group">
-            <button className="btn btn-primary">Login</button>
-            {loggingIn &&
+            <button className="btn btn-primary">Submit</button>
+            {forgetPassword &&
               <img alt='' src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
             }
-            <Link to="/register" className="btn btn-link">Register</Link>
-          </div>
-          <div className="form-group">
-            <Link to="/forget-Password" className="btn btn-link">Forget password</Link>
+            <Link to="/login" className="btn btn-link">Cancel</Link>
           </div>
         </form>
       </div>
@@ -74,12 +71,16 @@ class LoginPage extends React.Component {
   }
 }
 
+ForgetPasswordPage.defaultProps = {
+  states: statesList
+};
+
 function mapStateToProps(state) {
-  const { loggingIn } = state.authentication;
+  const { forgetPassword } = state.forgetPassword;
   return {
-    loggingIn
+    forgetPassword
   };
 }
 
-const connectedLoginPage = connect(mapStateToProps)(LoginPage);
-export { connectedLoginPage as LoginPage }; 
+const connectedForgetPasswordPage = connect(mapStateToProps)(ForgetPasswordPage);
+export { connectedForgetPasswordPage as ForgetPasswordPage };
