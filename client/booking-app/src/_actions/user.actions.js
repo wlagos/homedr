@@ -8,6 +8,7 @@ export const userActions = {
   logout,
   register,
   forgetPassword,
+  resetPassword,
   getAll,
   delete: _delete
 };
@@ -89,6 +90,28 @@ function forgetPassword(user) {
   function failure(error) { return { type: userConstants.FORGET_PASSWORD_FAILURE, error } }
 }
 
+function resetPassword(token, data) {
+  return dispatch => {
+    dispatch(request(data));
+
+    userService.resetPassword(token, data)
+      .then(
+        data => {
+          dispatch(success(data));
+          history.push('/login');
+          dispatch(alertActions.success('Password updated successfully!'));
+        },
+        error => {
+          dispatch(failure(error));
+          dispatch(alertActions.error(error));
+        }
+      );
+  };
+
+  function request(user) { return { type: userConstants.RESET_PASSWORD_REQUEST, user } }
+  function success(user) { return { type: userConstants.RESET_PASSWORD_SUCCESS, user } }
+  function failure(error) { return { type: userConstants.RESET_PASSWORD_FAILURE, error } }
+}
 
 function getAll() {
   return dispatch => {

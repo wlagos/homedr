@@ -4,12 +4,14 @@ import { HOST_URL, SERVER_URL } from '../utils/config';
 const LOGIN_URL = `/api/AppUsers/login`;
 const REGISTER_URL = `/api/AppUsers`;
 const FORGET_PASSWORD_URL = `/api/AppUsers/reset`;
+const RESET_PASSWORD_URL = `/api/AppUsers/reset-password`;
 
 export const userService = {
   login,
   logout,
   register,
   forgetPassword,
+  resetPassword,
   getAll,
   getById,
   update,
@@ -89,6 +91,21 @@ function forgetPassword(user) {
       return Promise.reject(response.statusText);
     }
     return user;
+  });
+}
+
+function resetPassword(token, data) {
+  const requestOptions = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': token },
+    body: JSON.stringify(data)
+  };
+
+  return fetch(RESET_PASSWORD_URL, requestOptions).then((response) => {
+    if (!response.ok) {
+      return Promise.reject(response.statusText);
+    }
+    return data;
   });
 }
 
