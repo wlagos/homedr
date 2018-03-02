@@ -52,7 +52,18 @@
   "files": {
     "loopback#static": [
       {
+        "name": "publicPath",
+        "paths": [
+          "/"
+        ],
         "params": "$!../public"
+      },
+      {
+        "name": "reactRouter",
+        "paths": [
+          "*"
+        ],
+        "params": "$!../public/index.html"
       }
     ]
   },
