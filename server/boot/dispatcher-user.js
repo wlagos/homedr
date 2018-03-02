@@ -14,7 +14,8 @@ module.exports = async function (server, next) {
       lastName: 'homedr',
       email: 'dispatcher@homedr.com',
       password: 'dispatcher@homedr',
-      state: 'AR'
+      state: 'AR',
+      emailVerified: true
     }
 
     let filter = {

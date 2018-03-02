@@ -11,7 +11,8 @@ module.exports = async function (server, next) {
     lastName: 'homedr',
     email: 'admin@homedr.com',
     password: 'admin@homedr',
-    state: 'AR'
+    state: 'AR',
+    emailVerified: true
   }
 
   // Filter for unique
