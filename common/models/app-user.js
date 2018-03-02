@@ -163,7 +163,7 @@ module.exports = function (AppUser) {
 
     const setLoginDate = async () => {
       try {
-        let userInstance = await AppUser.findById(userId);
+        let userInstance = await AppUser.findById(userId.toString());
         let updatedInstance = await userInstance.updateAttribute('lastLoginDate', moment().toISOString());
       } catch (error) {
         console.error('ERROR > SAVING LOGIN DATE > ', error);

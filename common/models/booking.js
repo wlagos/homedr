@@ -85,9 +85,53 @@ module.exports = function (Booking) {
     next();
   });
 
-  // last user that edited booking
+  // adding creator
   Booking.beforeRemote('create', (ctx, instance, next) => {
     ctx.req.body.userId = ctx.req.accessToken.userId;
     next();
+  });
+
+  Booking.beforeRemote('find', (ctx, instance, next) => {
+    if (instance instanceof Function) {
+      next = instance;
+    }
+    const checkRole = async () => {
+      const Role = Booking.app.models.Role;
+      let filter = {
+        principalId: ctx.req.accessToken.userId,
+        principalType: 'USER'
+      }
+      try {
+        let roles = await Role.getRoles(filter, { returnOnlyRoleNames: true });
+        let where = {};
+        if (_.includes(roles, ['ADMIN'])) {
+          where = {
+            // userId: ctx.req.accessToken.userId
+          }
+        } else if (_.includes(roles, ['DISPATCHER'])) {
+          where = {
+            dispatcherId: ctx.req.accessToken.userId
+          }
+        } else if (_.includes(roles, ['PROVIDER'])) {
+          where = {
+            providerId: ctx.req.accessToken.userId
+          }
+        }
+        if (!ctx.args.filter) {
+          ctx.args.filter = {
+            where: {
+            }
+          }
+        }
+        ctx.args.filter.where = {
+          and: [ctx.args.filter.where, where]
+        }
+        next();
+      } catch (error) {
+        return next(error);
+      }
+
+    }
+    checkRole();
   });
 };
