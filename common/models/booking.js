@@ -116,6 +116,10 @@ module.exports = function (Booking) {
           where = {
             providerId: ctx.req.accessToken.userId
           }
+        } else {
+          where = {
+            userId: ctx.req.accessToken.userId
+          }
         }
         if (!ctx.args.filter) {
           ctx.args.filter = {

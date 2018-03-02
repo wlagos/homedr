@@ -26,7 +26,8 @@ function getAll() {
     method: 'GET',
     headers: authHeader()
   };
-  const URL = `${GET_ALL_URL}?filter={ "include": ["user","lastUpdater"], "order": "createdAt DESC" }`
+  const filter = JSON.stringify({ "include": ["user","lastUpdater"], "order": "createdAt DESC" });
+  const URL = `${GET_ALL_URL}?filter=${filter}`
   return fetch(URL, requestOptions).then(handleResponse);
 }
 
