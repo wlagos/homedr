@@ -51,7 +51,7 @@ function register(user) {
         user => {
           dispatch(success(user));
           history.push('/login');
-          dispatch(alertActions.success('Registration successful'));
+          dispatch(alertActions.success('Registration successful! A verification link has been sent to your email.'));
         },
         error => {
           dispatch(failure(error));

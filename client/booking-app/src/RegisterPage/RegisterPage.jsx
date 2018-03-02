@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
+import * as _ from 'lodash';
 
 import { userActions } from '../_actions';
+
+import { statesList } from '../_constants';
 
 class RegisterPage extends React.Component {
   constructor(props) {
@@ -13,7 +16,9 @@ class RegisterPage extends React.Component {
         firstName: '',
         lastName: '',
         email: '',
-        password: ''
+        password: '',
+        confirmPassword: '',
+        country: 'United States'
       },
       submitted: false
     };
@@ -39,7 +44,17 @@ class RegisterPage extends React.Component {
     this.setState({ submitted: true });
     const { user } = this.state;
     const { dispatch } = this.props;
-    if (user.firstName && user.lastName && user.email && user.password && user.state && user.state !== 'State State') {
+    const REQUIRED_FIELDS = ['firstName', 'lastName', 'email', 'password', 'address1', 'address2', 'state', 'city', 'zip', 'country', 'terms']
+
+    let allValid = true;
+    _.forEach(REQUIRED_FIELDS, (value, index) => {
+      if (_.isEmpty(user[value])) {
+        allValid = false;
+        return;
+      }
+    });
+
+    if (allValid && (user.password === user.confirmPassword)) {
       dispatch(userActions.register(user));
     }
   }
@@ -48,7 +63,7 @@ class RegisterPage extends React.Component {
     const { registering } = this.props;
     const { user, submitted } = this.state;
     return (
-      <div className="col-md-6 col-md-offset-3">
+      <div className="col-md-8 col-md-offset-2">
         <h2>Register</h2>
         <form name="form" onSubmit={this.handleSubmit}>
           <div className={'form-group' + (submitted && !user.firstName ? ' has-error' : '')}>
@@ -76,10 +91,11 @@ class RegisterPage extends React.Component {
             <label htmlFor="state">State</label>
             <select className="form-control" name="state" value={user.state} onChange={this.handleChange}>
               <option value="State State">Select State</option>
-              <option value="AL">AL</option>
-              <option value="AK">AK</option>
-              <option value="AZ">AZ</option>
-              <option value="AR">CA</option>
+              {this.props.states.map(function (value, index) {
+                return (
+                  <option key={value} value={value}>{value}</option>
+                )
+              })}
             </select>
             {submitted && (!user.state || user.state === 'State State') &&
               <div className="help-block">State is required</div>
@@ -91,6 +107,59 @@ class RegisterPage extends React.Component {
             {submitted && !user.password &&
               <div className="help-block">Password is required</div>
             }
+          </div>
+          <div className={'form-group' + (submitted && (!user.confirmPassword || (user.password !== user.confirmPassword)) ? ' has-error' : '')}>
+            <label htmlFor="password">Confirm Password</label>
+            <input type="password" className="form-control" name="confirmPassword" value={user.confirmPassword} onChange={this.handleChange} />
+            {(submitted && !user.confirmPassword &&
+              <div className="help-block">Confirm Password is required</div>) ||
+              (submitted && (user.confirmPassword !== user.password) &&
+                <div className="help-block">Password did not match!</div>)
+            }
+          </div>
+          <div className={'form-group' + (submitted && !user.address1 ? ' has-error' : '')}>
+            <label htmlFor="address1">Address 1</label>
+            <input type="text" className="form-control" name="address1" value={user.address1} onChange={this.handleChange} />
+            {submitted && !user.address1 &&
+              <div className="help-block">Address 1 is required</div>
+            }
+          </div>
+          <div className={'form-group' + (submitted && !user.address2 ? ' has-error' : '')}>
+            <label htmlFor="address2">Address 2</label>
+            <input type="text" className="form-control" name="address2" value={user.address2} onChange={this.handleChange} />
+            {submitted && !user.address2 &&
+              <div className="help-block">Address 2 is required</div>
+            }
+          </div>
+          <div className={'form-group' + (submitted && !user.city ? ' has-error' : '')}>
+            <label htmlFor="city">City</label>
+            <input type="text" className="form-control" name="city" value={user.city} onChange={this.handleChange} />
+            {submitted && !user.city &&
+              <div className="help-block">City is required</div>
+            }
+          </div>
+          <div className={'form-group' + (submitted && !user.zip ? ' has-error' : '')}>
+            <label htmlFor="zip">Zip</label>
+            <input type="text" className="form-control" name="zip" value={user.zip} onChange={this.handleChange} />
+            {submitted && !user.zip &&
+              <div className="help-block">Zip is required</div>
+            }
+          </div>
+          <div className={'form-group' + (submitted && !user.country ? ' has-error' : '')}>
+            <label htmlFor="country">Country</label>
+            <input type="text" className="form-control" name="country" value={user.country} onChange={this.handleChange} />
+            {submitted && !user.country &&
+              <div className="help-block">Country is required</div>
+            }
+          </div>
+          <div className={'form-group' + (submitted && !user.terms ? ' has-error' : '') + ' checkbox'}>
+            <label htmlFor="terms"><input type="checkbox" name="terms" value={user.terms} onChange={this.handleChange} /> Terms</label>
+            {submitted && !user.terms &&
+              <div className="help-block">Please agree to terms and services</div>
+            }
+          </div>
+          <div className='form-group checkbox'>
+            <label htmlFor="subscription"><input type="checkbox" name="subscription" value={user.subscription} onChange={this.handleChange} /> Subscribe</label>
           </div>
           <div className="form-group">
             <button className="btn btn-primary">Register</button>
@@ -104,6 +173,10 @@ class RegisterPage extends React.Component {
     );
   }
 }
+
+RegisterPage.defaultProps = {
+  states: statesList
+};
 
 function mapStateToProps(state) {
   const { registering } = state.registration;

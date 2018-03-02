@@ -193,8 +193,8 @@ module.exports = function (AppUser) {
       return next();
     }
     let options = {
-      host: 'localhost',
-      port: '3000',
+      host: process.env.VERIFICATION_HOST,
+      port: 80,
       type: 'email',
       to: user.email,
       from: process.env.SMTP_FROM,
