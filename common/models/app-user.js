@@ -259,4 +259,15 @@ module.exports = function (AppUser) {
     }
     updateLoginDate();
   });
+
+  // set dob variables
+  AppUser.observe('before save', function (ctx, next) {
+    let data = ctx.data || ctx.instance;
+    if (data.dob) {
+      data.birthYear = moment(data.dob).format('YYYY');
+      data.birthMonth = moment(data.dob).format('MM');
+      data.birthDate = moment(data.dob).format('DD');
+    }
+    next();
+  });
 };

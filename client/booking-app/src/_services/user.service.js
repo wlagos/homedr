@@ -76,7 +76,7 @@ function register(user) {
     body: JSON.stringify(user)
   };
 
-  return fetch(REGISTER_URL, requestOptions).then();
+  return fetch(REGISTER_URL, requestOptions).then(handleResponse);
 }
 
 function forgetPassword(user) {

@@ -22,6 +22,9 @@
       "required": true,
       "default": false
     },
+    "dob": {
+      "type": "date"
+    },
     "birthYear": {
       "type": "number"
     },

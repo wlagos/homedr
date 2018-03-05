@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as _ from 'lodash';
+import * as moment from 'moment';
 
 import { userActions } from '../_actions';
 
@@ -25,6 +26,7 @@ class RegisterPage extends React.Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.inValidDob = this.inValidDob.bind(this);
   }
 
   handleChange(event) {
@@ -42,9 +44,9 @@ class RegisterPage extends React.Component {
     event.preventDefault();
 
     this.setState({ submitted: true });
-    const { user } = this.state;
+    let { user } = this.state;
     const { dispatch } = this.props;
-    const REQUIRED_FIELDS = ['firstName', 'lastName', 'email', 'password', 'address1', 'address2', 'state', 'city', 'zip', 'country', 'terms']
+    const REQUIRED_FIELDS = ['firstName', 'lastName', 'dob', 'email', 'password', 'address1', 'address2', 'state', 'city', 'zip', 'country', 'terms']
 
     let allValid = true;
     _.forEach(REQUIRED_FIELDS, (value, index) => {
@@ -55,8 +57,25 @@ class RegisterPage extends React.Component {
     });
 
     if (allValid && (user.password === user.confirmPassword)) {
+      user.birthYear = moment(user.dob).format('YYYY');
+      user.birthMonth = moment(user.dob).format('MM');
+      user.birthDate = moment(user.dob).format('DD');
+      user = _.omit(user, ['confirmPassword']);
       dispatch(userActions.register(user));
     }
+  }
+
+  inValidDob() {
+    const { user } = this.state;
+
+    const currentDate = moment();
+    const dob = moment(user.dob);
+
+    const years = currentDate.diff(dob, 'years');
+    if (years >= 18) {
+      return false;
+    }
+    return true;
   }
 
   render() {
@@ -78,6 +97,15 @@ class RegisterPage extends React.Component {
             <input type="text" className="form-control" name="lastName" value={user.lastName} onChange={this.handleChange} />
             {submitted && !user.lastName &&
               <div className="help-block">Last Name is required</div>
+            }
+          </div>
+          <div className={'form-group' + (submitted && (!user.dob || this.inValidDob()) ? ' has-error' : '')}>
+            <label htmlFor="dob">Date of Birth</label>
+            <input type="date" className="form-control" name="dob" max={moment().format('YYYY-MM-DD')} value={user.dob} onChange={this.handleChange} />
+            {(submitted && !user.dob &&
+              <div className="help-block">Date of Birth is required</div>) ||
+              (submitted && this.inValidDob() &&
+                <div className="help-block">Must be 18 years or above!</div>)
             }
           </div>
           <div className={'form-group' + (submitted && !user.email ? ' has-error' : '')}>

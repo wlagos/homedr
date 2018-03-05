@@ -51,6 +51,7 @@ function register(user) {
     userService.register(user)
       .then(
         user => {
+          debugger;
           dispatch(success(user));
           history.push('/login');
           dispatch(alertActions.success('Registration successful! A verification link has been sent to your email.'));
