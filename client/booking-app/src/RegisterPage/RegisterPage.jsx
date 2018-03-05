@@ -166,11 +166,13 @@ class RegisterPage extends React.Component {
               <div className="help-block">City is required</div>
             }
           </div>
-          <div className={'form-group' + (submitted && !user.zip ? ' has-error' : '')}>
+          <div className={'form-group' + (submitted && (!user.zip || (user.zip.length != 5)) ? ' has-error' : '')}>
             <label htmlFor="zip">Zip</label>
             <input type="text" className="form-control" name="zip" value={user.zip} onChange={this.handleChange} />
-            {submitted && !user.zip &&
-              <div className="help-block">Zip is required</div>
+            {(submitted && !user.zip &&
+              <div className="help-block">Zip is required</div>) || 
+              (submitted && (user.zip.length != 5) &&
+                <div className="help-block">Zip must be of length 5</div>)
             }
           </div>
           <div className={'form-group' + (submitted && !user.country ? ' has-error' : '')}>
