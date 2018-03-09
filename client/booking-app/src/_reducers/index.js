@@ -7,6 +7,7 @@ import { resetPassword } from './reset-password.reducer';
 import { users } from './users.reducer';
 import { booking } from './booking.reducer';
 import { alert } from './alert.reducer';
+import { payment } from './payment.reducer';
 
 const rootReducer = combineReducers({
   authentication,
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   resetPassword,
   users,
   booking,
+  payment,
   alert
 });
 
