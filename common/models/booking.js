@@ -2,6 +2,90 @@
 
 const _ = require('lodash');
 const StateLists = require('../states');
+const Stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+Stripe.setApiVersion('2018-02-28');
+
+function createError(code, message) {
+  let errorObj = new Error(message);
+  errorObj.statusCode = code || 400;
+  return errorObj;
+}
+
+function createBooking(data, options, cb) {
+
+  const Booking = this;
+  const AppUser = this.app.models.AppUser;
+
+  const _createBooking = async () => {
+
+    try {
+      let stripeCustomer, customerCreated = false;
+
+      // Get User Details
+      let userInstance = await AppUser.findById(options.accessToken.userId, {}, options);
+
+      if (!userInstance.stripeCustomer) {
+        // Crate Stripe Customer
+        let createUser = {
+          email: userInstance.email,
+          source: data.token.id,
+          description: `Customer for user ${userInstance.firstName} (${userInstance.email})`
+        }
+        stripeCustomer = await Stripe.customers.create(createUser);
+        userInstance = await userInstance.updateAttributes({
+          stripeCustomer: stripeCustomer
+        });
+        customerCreated = true;
+      } else {
+        stripeCustomer = userInstance.stripeCustomer;
+      }
+
+      // Update card in customer if new added
+      if (data.token && !customerCreated) {
+        let stripeCard = await Stripe.customers.createSource(stripeCustomer.id, {
+          source: data.token.id
+        });
+        stripeCustomer = await Stripe.customers.update(stripeCustomer.id, {
+          default_source: stripeCard.id
+        });
+        userInstance = await userInstance.updateAttributes({
+          stripeCustomer: stripeCustomer
+        });
+      }
+
+      // Create Charge Token
+      let chargeData = {
+        amount: 999,
+        currency: "usd",
+        description: `Charge for booking by ${userInstance.email}`,
+        capture: false,
+        customer: stripeCustomer.id
+      }
+
+      // if (data.token && !customerCreated) {
+      //   chargeData.source = data.token.id
+      // } else {
+      // chargeData.customer = stripeCustomer.id
+      // }
+
+      let chargeInstance = await Stripe.charges.create(chargeData);
+
+      let bookingObj = _.omit(data, ['token']);
+      bookingObj.paymentToken = chargeInstance;
+      bookingObj.userId = options.accessToken.userId;
+
+      let bookingInstance = await Booking.create(bookingObj, options);
+
+      return cb(null, bookingInstance);
+    } catch (error) {
+      let statusCode = error.statusCode || error.code || error.status || 500;
+      let message = error.message || 'Something went wrong!';
+      return cb(createError(statusCode, message));
+    }
+  }
+
+  _createBooking();
+}
 
 module.exports = function (Booking) {
   // Function to validate zipcode
@@ -137,5 +221,19 @@ module.exports = function (Booking) {
 
     }
     checkRole();
+  });
+
+  // Creating Booking Custom
+  Booking.createBooking = createBooking;
+  Booking.remoteMethod('createBooking', {
+    accepts: [
+      { arg: 'data', type: 'object', require: true, http: { source: 'body' } },
+      { arg: 'options', type: 'object', http: 'optionsFromRequest' }
+    ],
+    http: {
+      verb: 'POST',
+      path: '/create-booking'
+    },
+    returns: { arg: 'data', type: 'object', root: true }
   });
 };

@@ -63,6 +63,9 @@
     "paymentId": {
       "type": "string"
     },
+    "stripeCustomer": {
+      "type": "object"
+    },
     "lastLoginDate": {
       "type": "date"
     },

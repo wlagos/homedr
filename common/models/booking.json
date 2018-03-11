@@ -62,6 +62,9 @@
       "type": "object"
     }
   },
+  "hidden": [
+    "paymentToken"
+  ],
   "validations": [],
   "relations": {
     "user": {
