@@ -5,6 +5,7 @@ const LOGIN_URL = `${HOST_URL}/api/AppUsers/login`;
 const REGISTER_URL = `${HOST_URL}/api/AppUsers`;
 const FORGET_PASSWORD_URL = `${HOST_URL}/api/AppUsers/reset`;
 const RESET_PASSWORD_URL = `${HOST_URL}/api/AppUsers/reset-password`;
+const GET_BY_ID_URL = `${HOST_URL}/api/AppUsers`;
 
 export const userService = {
   login,
@@ -63,10 +64,11 @@ function getAll() {
 function getById(id) {
   const requestOptions = {
     method: 'GET',
-    headers: authHeader()
+    headers: { ...authHeader(), 'Content-Type': 'application/json' }
   };
 
-  return fetch('/users/' + id, requestOptions).then(handleResponse);
+  let URL = `${GET_BY_ID_URL}/${id}`;
+  return fetch(URL, requestOptions).then(handleResponse);
 }
 
 function register(user) {

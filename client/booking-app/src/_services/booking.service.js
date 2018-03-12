@@ -1,7 +1,7 @@
 import { authHeader } from '../_helpers';
 import { HOST_URL, SERVER_URL } from '../utils/config';
 
-const CREATE_URL = `${HOST_URL}/api/Bookings`;
+const CREATE_URL = `${HOST_URL}/api/Bookings/create-booking`;
 const GET_ALL_URL = `${HOST_URL}/api/Bookings`;
 const DELETE_URL = `${HOST_URL}/api/Bookings`;
 

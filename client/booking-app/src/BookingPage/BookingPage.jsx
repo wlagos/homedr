@@ -20,6 +20,8 @@ import {
   injectStripe,
 } from 'react-stripe-elements';
 
+import { userService } from '../_services';
+
 class BookingPage extends React.Component {
   constructor(props) {
     super(props);
@@ -35,23 +37,49 @@ class BookingPage extends React.Component {
         status: 'PENDING'
       },
       submitted: false,
-      isFormValid: false
+      isFormValid: false,
+      newCard: true
     };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handlePayment = this.handlePayment.bind(this);
+    this.handleToggle = this.handleToggle.bind(this);
+    this.doBooking = this.doBooking.bind(this);
   }
+
+  componentDidMount() {
+    let userData = JSON.parse(localStorage.getItem('user'));
+    userService.getById(userData.id)
+      .then((response) => {
+        if (response.error) {
+          console.error('resp error', response.error);
+          return;
+        }
+        localStorage.setItem('user', JSON.stringify(response));
+        userData = JSON.parse(localStorage.getItem('user'));
+        let _defaultCard, _newCard = false;
+        if (userData.stripeCustomer && userData.stripeCustomer.sources.data) {
+          let defaultCard = _.find(userData.stripeCustomer.sources.data, ['id', userData.stripeCustomer.default_source]);
+          if (defaultCard) {
+            this.state.defaultCard = defaultCard;
+            this.state.newCard = false;
+          }
+        }
+        this.state.userData = userData;
+        this.setState(this.state);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
 
   handleChange(event) {
     const { name, value } = event.target;
     const { booking } = this.state;
-    this.setState({
-      booking: {
-        ...booking,
-        [name]: value
-      }
-    });
+    booking[name] = value;
+    this.state.booking = booking;
+    this.setState(this.state);
   }
 
   handleSubmit(event) {
@@ -70,7 +98,7 @@ class BookingPage extends React.Component {
       }
     });
 
-    if (allValid && (booking.state !== 'Select State')) {
+    if (allValid && (booking.state !== 'Select State') && (booking.zip.length == 5)) {
       this.state.isFormValid = true;
     }
     this.setState(this.state);
@@ -88,26 +116,70 @@ class BookingPage extends React.Component {
 
     const { booking } = this.state;
     const { dispatch } = this.props;
-    booking.paymentToken = payload.token;
+    booking.token = payload.token;
     dispatch(bookingActions.create(booking));
+  }
+
+  doBooking() {
+    this.state.isFormValid = false;
+    this.setState(this.state);
+
+    const { booking } = this.state;
+    const { dispatch } = this.props;
+    dispatch(bookingActions.create(booking));
+  }
+
+  handleToggle(event) {
+    const { name, value } = event.target;
+    this.state.newCard = !this.state.newCard;
+    this.setState(this.state);
   }
 
   render() {
     const { registering } = this.props;
-    const { booking, submitted, isFormValid, paymentError } = this.state;
+    const { booking, submitted, isFormValid, paymentError, newCard, userData, defaultCard } = this.state;
     return (
       <div>
         {isFormValid ?
-          <StripeProvider apiKey={STRIPE_API_KEY}>
-            <Elements>
+          <div>
+            {defaultCard ?
+              <div className="radio">
+                <label>
+                  <input type="radio" name="newCard" value='oldCard' checked={newCard === false} onChange={this.handleToggle} />
+                  Old Card
+              </label>
+              </div> : <span></span>
+            }
+            <div className="radio">
+              <label>
+                <input type="radio" name="newCard" value='newCard' checked={newCard === true} onChange={this.handleToggle} />
+                New Card
+            </label>
+            </div>
+            {newCard ?
+              <StripeProvider apiKey={STRIPE_API_KEY}>
+                <Elements>
+                  <div>
+                    <SplitForm fontSize={'14px'} callback={this.handlePayment} />
+                    {paymentError &&
+                      <div className="help-block">{paymentError}</div>
+                    }
+                  </div>
+                </Elements>
+              </StripeProvider>
+              :
               <div>
-                <SplitForm fontSize={'14px'} callback={this.handlePayment} />
-                {paymentError &&
-                  <div className="help-block">{paymentError}</div>
-                }
+                <div>
+                  <label>Card: </label><span>XXXX-XXXX-XXXX-{defaultCard.last4}</span><br />
+                  <label>Type: </label><span>{defaultCard.brand}</span><br />
+                  <label>EXp: </label><span>{defaultCard.exp_month}/{defaultCard.exp_year}</span><br />
+                </div>
+                <div className="col-md-6 text-right">
+                  <button className="btn btn-primary" onClick={this.doBooking}>Book</button>
+                </div>
               </div>
-            </Elements>
-          </StripeProvider>
+            }
+          </div>
           :
           <div className="col-md-6 col-md-offset-3">
             <h2>Booking</h2>
@@ -147,11 +219,13 @@ class BookingPage extends React.Component {
                   <div className="help-block">State is required</div>
                 }
               </div>
-              <div className={'form-group' + (submitted && !booking.zip ? ' has-error' : '')}>
+              <div className={'form-group' + (submitted && (!booking.zip || (booking.zip.length != 5)) ? ' has-error' : '')}>
                 <label htmlFor="zip">Zip</label>
                 <input type="text" className="form-control" name="zip" value={booking.zip} onChange={this.handleChange} />
                 {submitted && !booking.zip &&
-                  <div className="help-block">Zip is required</div>
+                  <div className="help-block">Zip is required</div> ||
+                  (submitted && (booking.zip.length != 5) &&
+                    <div className="help-block">Zip must be of length 5</div>)
                 }
               </div>
               <div className={'form-group' + (submitted && !booking.country ? ' has-error' : '')}>
