@@ -99,6 +99,60 @@ function assignRole(data, options, cb) {
   _assignRole();
 }
 
+// Get Users By Role Function
+function getUsersByRole(role, options, cb) {
+  const AppUser = this;
+  const Role = this.app.models.Role;
+  const RoleMapping = this.app.models.RoleMapping;
+
+  let roleInstance, userIds, userInstances = [];
+
+  // Get Role Function
+  const getRole = async () => {
+    let filter = {
+      where: {
+        name: role
+      },
+      include: 'principals'
+    }
+    try {
+      roleInstance = await Role.findOne(filter, options);
+      if (!roleInstance) {
+        return cb(createError(404, 'Role not found!'));
+      }
+      let _roleInstance = roleInstance.toJSON();
+      userIds = _.map(_roleInstance.principals, 'principalId');
+    } catch (error) {
+      console.error('ERROR > GETTING ROLE > ', error);
+      return cb(error);
+    }
+  }
+
+  const getUsers = async () => {
+    let filter = {
+      where: {
+        id: {
+          inq: userIds
+        }
+      }
+    }
+
+    try {
+      userInstances = await AppUser.find(filter, options);
+    } catch (error) {
+      console.error('ERROR > GETTING USERS > ', error);
+      return cb(error);
+    }
+  }
+
+  async function _getUsersByRole() {
+    await getRole();
+    await getUsers();
+    cb(null, userInstances);
+  }
+  _getUsersByRole();
+}
+
 module.exports = function (AppUser) {
   // Function to validat birth month
   function birthMonthValidator(err) {
@@ -269,5 +323,19 @@ module.exports = function (AppUser) {
       data.birthDate = moment(data.dob).format('DD');
     }
     next();
+  });
+
+  // Get User by Roles
+  AppUser.getUsersByRole = getUsersByRole;
+  AppUser.remoteMethod('getUsersByRole', {
+    accepts: [
+      { arg: 'role', type: 'string', require: true },
+      { arg: 'options', type: 'object', http: 'optionsFromRequest' }
+    ],
+    http: {
+      verb: 'GET',
+      path: '/getUsersByRole'
+    },
+    returns: { arg: 'data', type: 'object', root: true }
   });
 };
