@@ -212,10 +212,24 @@ module.exports = function (AppUser) {
 
   // Last Login Date
   AppUser.afterRemote('login', (ctx, instance, next) => {
-    next();
-    let userId = instance.userId;
+    const Role = AppUser.app.models.Role;
+    const getUserRole = async () => {
+      try {
+        let filter = {
+          principalId: instance.userId,
+          principalType: 'USER'
+        }
+        let roles = await Role.getRoles(filter, { returnOnlyRoleNames: true });
+        roles = _.difference(roles, ['$owner', '$everyone', '$unauthenticated', '$authenticated']);
+        ctx.result.role = roles[0];
+        next();
+      } catch (error) {
+        return next(error);
+      }
+    }
 
     const setLoginDate = async () => {
+      let userId = instance.userId;
       try {
         let userInstance = await AppUser.findById(userId.toString());
         let updatedInstance = await userInstance.updateAttribute('lastLoginDate', moment().toISOString());
@@ -223,7 +237,7 @@ module.exports = function (AppUser) {
         console.error('ERROR > SAVING LOGIN DATE > ', error);
       }
     }
-
+    getUserRole();
     setLoginDate();
   });
 
@@ -297,21 +311,6 @@ module.exports = function (AppUser) {
       if (error) return console.log('ERROR > SENDING PASSWORD RESET EMAIL > ', error);
       console.log('SENDING > PASSWORD RESET EMAIL TO > ', info.email);
     });
-  });
-
-  AppUser.afterRemote('login', function (ctx, user, next) {
-    // Update lastLoginDate Field
-    const updateLoginDate = async () => {
-      const currentDate = new Date()
-      try {
-        let updatedInstance = user.updateAttribute('lastLoginDate', currentDate);
-        next();
-      } catch (error) {
-        console.error('ERROR > UPDATING LAST LOGIN > ', error);
-        return next(error);
-      }
-    }
-    updateLoginDate();
   });
 
   // set dob variables
