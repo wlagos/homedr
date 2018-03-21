@@ -221,7 +221,7 @@ module.exports = function (AppUser) {
         }
         let roles = await Role.getRoles(filter, { returnOnlyRoleNames: true });
         roles = _.difference(roles, ['$owner', '$everyone', '$unauthenticated', '$authenticated']);
-        ctx.result.role = roles[0];
+        ctx.result.role = roles[0] || 'PATIENT';
         next();
       } catch (error) {
         return next(error);
