@@ -7,6 +7,7 @@ import { alertActions } from '../_actions';
 import { PrivateRoute } from '../_components';
 import { HomePage } from '../HomePage';
 import { BookingPage } from '../BookingPage';
+import { EditBookingPage } from '../EditBookingPage';
 import { BookingListPage } from '../BookingListPage';
 import { LoginPage } from '../LoginPage';
 import { RegisterPage } from '../RegisterPage';
@@ -37,6 +38,7 @@ class App extends React.Component {
               <div>
                 <Route exact path="/" component={HomePage} />
                 <PrivateRoute exact path="/booking" component={BookingPage} />
+                <PrivateRoute path="/booking/:id" component={EditBookingPage} />
                 <PrivateRoute exact path="/bookings" component={BookingListPage} />
                 <Route path="/login" component={LoginPage} />
                 <Route path="/register" component={RegisterPage} />

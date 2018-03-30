@@ -6,6 +6,7 @@ import { history } from '../_helpers';
 export const bookingActions = {
   create,
   getAll,
+  updateById,
   delete: _delete
 };
 
@@ -32,7 +33,6 @@ function create(data) {
   function failure(error) { return { type: bookingConstants.CREATE_FAILURE, error } }
 }
 
-
 function getAll() {
   return dispatch => {
     dispatch(request());
@@ -46,6 +46,26 @@ function getAll() {
   function request() { return { type: bookingConstants.GETALL_REQUEST } }
   function success(bookings) { return { type: bookingConstants.GETALL_SUCCESS, bookings } }
   function failure(error) { return { type: bookingConstants.GETALL_FAILURE, error } }
+}
+
+function updateById(id, data) {
+  return dispatch => {
+    dispatch(request(id, data));
+
+    bookingService.updateById(id, data)
+      .then(
+        booking => {
+          dispatch(success(booking));
+        },
+        error => {
+          dispatch(failure(id, error));
+        }
+      );
+  };
+
+  function request(id) { return { type: bookingConstants.UPDATE_BY_ID_REQUEST, id, data } }
+  function success(booking) { return { type: bookingConstants.UPDATE_BY_ID_SUCCESS, booking } }
+  function failure(id, error) { return { type: bookingConstants.UPDATE_BY_ID_FAILURE, id, error } }
 }
 
 // prefixed function name with underscore because delete is a reserved word in javascript

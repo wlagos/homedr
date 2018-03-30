@@ -3,11 +3,13 @@ import { HOST_URL, SERVER_URL } from '../utils/config';
 
 const CREATE_URL = `${HOST_URL}/api/Bookings/create-booking`;
 const GET_ALL_URL = `${HOST_URL}/api/Bookings`;
+const GET_BY_ID = `${HOST_URL}/api/Bookings`;
 const DELETE_URL = `${HOST_URL}/api/Bookings`;
 
 export const bookingService = {
   create,
   getAll,
+  getById,
   delete: _delete
 };
 
@@ -26,8 +28,17 @@ function getAll() {
     method: 'GET',
     headers: authHeader()
   };
-  const filter = JSON.stringify({ "include": ["user","lastUpdater"], "order": "createdAt DESC" });
+  const filter = JSON.stringify({ "include": ["user", "lastUpdater"], "order": "createdAt DESC" });
   const URL = `${GET_ALL_URL}?filter=${filter}`
+  return fetch(URL, requestOptions).then(handleResponse);
+}
+
+function getById(id) {
+  const requestOptions = {
+    method: 'GET',
+    headers: { ...authHeader(), 'Content-Type': 'application/json' }
+  };
+  const URL = `${GET_BY_ID}/${id}`
   return fetch(URL, requestOptions).then(handleResponse);
 }
 

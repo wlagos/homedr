@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 export const BookingListRow = ({ booking, onDelete }) => {
   return (
@@ -9,7 +9,7 @@ export const BookingListRow = ({ booking, onDelete }) => {
       <td>{booking.status}</td>
       <td>
         <div className="btn-toolbar pull-right">
-          {/* <Link to={`/booking/${booking.id}`} className="btn btn-primary">Edit</Link> */}
+          <Link to={`/booking/${booking.id}`} className="btn btn-primary">Edit</Link>
           {/* <a onClick={onDelete.bind(this, booking)} className="btn btn-danger">Delete</a> */}
         </div>
       </td>

@@ -43,6 +43,28 @@ export function booking(state = {}, action) {
           booking: false
         }
       };
+    case bookingConstants.UPDATE_BY_ID_REQUEST:
+      return {
+        ...state,
+        ...{
+          loading: true
+        }
+      };
+    case bookingConstants.UPDATE_BY_ID_SUCCESS:
+      return {
+        ...state,
+        ...{
+          loading: false,
+          booking: action.booking
+        }
+      };
+    case bookingConstants.UPDATE_BY_ID_FAILURE:
+      return {
+        ...state,
+        ...{
+          loading: false
+        }
+      };
     default:
       return state
   }
