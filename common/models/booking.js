@@ -87,6 +87,35 @@ function createBooking(data, options, cb) {
   _createBooking();
 }
 
+function charge(options, cb) {
+  let bookingInstance = this;
+  const chargeBooking = async () => {
+    if (!bookingInstance.paymentToken) {
+      let statusCode = 403;
+      let message = 'Payment details not found!';
+      return cb(createError(statusCode, message));
+    }
+    try {
+      let stripeCharge = await Stripe.charges.capture(bookingInstance.paymentToken.id);
+      let updatedInstance = await bookingInstance.updateAttributes({
+        paymentToken: stripeCharge
+      })
+      let successObj = {
+        statusCode: 200,
+        status: 200,
+        message: 'Charge successful'
+      }
+      return cb(null, successObj);
+    } catch (error) {
+      let statusCode = error.statusCode || error.code || error.status || 500;
+      let message = error.message || 'Something went wrong!';
+      return cb(createError(statusCode, message));
+    }
+  }
+
+  chargeBooking();
+}
+
 module.exports = function (Booking) {
   // Function to validate zipcode
   function zipValidator(err) {
@@ -233,6 +262,19 @@ module.exports = function (Booking) {
     http: {
       verb: 'POST',
       path: '/create-booking'
+    },
+    returns: { arg: 'data', type: 'object', root: true }
+  });
+
+  // Charge a booking
+  Booking.prototype.charge = charge;
+  Booking.remoteMethod('prototype.charge', {
+    accepts: [
+      { arg: 'options', type: 'object', http: 'optionsFromRequest' }
+    ],
+    http: {
+      verb: 'POST',
+      path: '/charge'
     },
     returns: { arg: 'data', type: 'object', root: true }
   });
