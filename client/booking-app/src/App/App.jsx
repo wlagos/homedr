@@ -13,6 +13,7 @@ import { LoginPage } from '../LoginPage';
 import { RegisterPage } from '../RegisterPage';
 import { ForgetPasswordPage } from '../ForgetPasswordPage';
 import { ResetPasswordPage } from '../ResetPasswordPage';
+import { ProfilePage } from '../ProfilePage';
 
 class App extends React.Component {
   constructor(props) {
@@ -40,6 +41,7 @@ class App extends React.Component {
                 <PrivateRoute exact path="/booking" component={BookingPage} />
                 <PrivateRoute path="/booking/:id" component={EditBookingPage} />
                 <PrivateRoute exact path="/bookings" component={BookingListPage} />
+                <PrivateRoute exact path="/profile" component={ProfilePage} />
                 <Route path="/login" component={LoginPage} />
                 <Route path="/register" component={RegisterPage} />
                 <Route path="/forget-password" component={ForgetPasswordPage} />

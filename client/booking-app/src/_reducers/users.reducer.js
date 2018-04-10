@@ -11,7 +11,7 @@ export function users(state = {}, action) {
         items: action.users
       };
     case userConstants.GETALL_FAILURE:
-      return { 
+      return {
         error: action.error
       };
     case userConstants.DELETE_REQUEST:
@@ -43,6 +43,54 @@ export function users(state = {}, action) {
 
           return user;
         })
+      };
+
+    case userConstants.GETBYID_REQUEST:
+      // add 'deleting:true' property to user being deleted
+      return {
+        ...state,
+        ...{
+          loading: true
+        }
+      };
+
+    case userConstants.GETBYID_SUCCESS:
+      // remove deleted user from state
+      return {
+        ...state,
+        ...{
+          loadind: false,
+          user: action.user
+        }
+      };
+
+    case userConstants.GETBYID_FAILURE:
+      // remove 'deleting:true' property and add 'deleteError:[error]' property to user 
+      return {
+        ...state,
+        loading: false
+      };
+    case userConstants.UPDATE_BY_ID_REQUEST:
+      return {
+        ...state,
+        ...{
+          loading: true
+        }
+      };
+    case userConstants.UPDATE_BY_ID_SUCCESS:
+      return {
+        ...state,
+        ...{
+          loading: false,
+          user: action.user
+        }
+      };
+    case userConstants.UPDATE_BY_ID_FAILURE:
+      return {
+        ...state,
+        ...{
+          loading: false
+        }
       };
     default:
       return state

@@ -6,6 +6,7 @@ const REGISTER_URL = `${HOST_URL}/api/AppUsers`;
 const FORGET_PASSWORD_URL = `${HOST_URL}/api/AppUsers/reset`;
 const RESET_PASSWORD_URL = `${HOST_URL}/api/AppUsers/reset-password`;
 const GET_BY_ID_URL = `${HOST_URL}/api/AppUsers`;
+const UPDATE_BY_ID_URL = `${HOST_URL}/api/AppUsers`;
 
 export const userService = {
   login,
@@ -15,6 +16,7 @@ export const userService = {
   resetPassword,
   getAll,
   getById,
+  updateById,
   update,
   delete: _delete
 };
@@ -119,6 +121,16 @@ function update(user) {
   };
 
   return fetch('/users/' + user.id, requestOptions).then(handleResponse);
+}
+
+function updateById(id, user) {
+  const requestOptions = {
+    method: 'PATCH',
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(user)
+  };
+  let URL = `${UPDATE_BY_ID_URL}/${id}`;
+  return fetch(URL, requestOptions).then(handleResponse);
 }
 
 // prefixed function name with underscore because delete is a reserved word in javascript

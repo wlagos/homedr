@@ -21,6 +21,7 @@ class HomePage extends React.Component {
           <h1>Hi {user.firstName} {user.lastName}!</h1>
           <p>You're logged in with {user.email}!!</p>
           <p>
+            <Link to="/profile">Profile</Link><br />
             <Link to="/bookings">Bookings</Link><br />
             <Link to="/booking">Book</Link><br />
             <Link to="/login">Logout</Link>
