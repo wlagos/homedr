@@ -55,7 +55,7 @@ function createBooking(data, options, cb) {
 
       // Create Charge Token
       let chargeData = {
-        amount: 999,
+        amount: 99,
         currency: "usd",
         description: `Charge for booking by ${userInstance.email}`,
         capture: false,
