@@ -13,15 +13,21 @@ import { userService } from '../_services';
 class ProfilePage extends React.Component {
   constructor(props) {
     super(props);
-    debugger;
     this.state = {
       ...props,
+      passwordData: {
+        oldPassword: '',
+        newPassword: ''
+      },
+      loading: true,
       submitted: false,
     };
 
     this.handleChange = this.handleChange.bind(this);
+    this.handlePasswordChange = this.handlePasswordChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.inValidDob = this.inValidDob.bind(this);    
+    this.handlePasswordSubmit = this.handlePasswordSubmit.bind(this);
+    this.inValidDob = this.inValidDob.bind(this);
   }
 
   componentDidMount() {
@@ -46,11 +52,20 @@ class ProfilePage extends React.Component {
     const { name, value } = event.target;
     const { user } = this.state;
     let _value = value;
-    if(name === 'subscription') {
+    if (name === 'subscription') {
       _value = event.target.checked;
     }
     user[name] = _value;
     this.state.user = user;
+    this.setState(this.state);
+  }
+
+  handlePasswordChange(event) {
+    const { name, value } = event.target;
+    const { passwordData } = this.state;
+    let _value = value;
+    passwordData[name] = _value;
+    this.state.passwordData = passwordData;
     this.setState(this.state);
   }
 
@@ -70,7 +85,7 @@ class ProfilePage extends React.Component {
       }
     });
 
-    if(!user['zip']) {
+    if (!user['zip']) {
       allValid = false;
     }
 
@@ -79,6 +94,29 @@ class ProfilePage extends React.Component {
       const { dispatch } = this.props;
       let updateData = _.pick(user, ['firstName', 'lastName', 'dob', 'state', 'address1', 'address2', 'city', 'zip', 'country', 'subscription']);
       dispatch(userActions.updateById(userId, updateData));
+    }
+  }
+
+  handlePasswordSubmit(event) {
+    event.preventDefault();
+    this.setState({ passwordSubmitted: true });
+    // this.setState({ submitted: true });
+    const { passwordData, userId } = this.state;
+    const { dispatch } = this.props;
+    const REQUIRED_FIELDS = ['oldPassword', 'newPassword']
+
+    let allValid = true;
+    _.forEach(REQUIRED_FIELDS, (value, index) => {
+      if (!passwordData[value] || _.isEmpty(passwordData[value])) {
+        allValid = false;
+        return;
+      }
+    });
+
+    if (allValid) {
+      this.setState(this.state);
+      const { dispatch } = this.props;
+      dispatch(userActions.changePassword(userId, passwordData));
     }
   }
 
@@ -97,13 +135,16 @@ class ProfilePage extends React.Component {
 
   render() {
     // const { loading } = this.props;
-    const { user, submitted, loading } = this.state;
+    const { user, submitted, loading, passwordData, passwordSubmitted } = this.state;
     if (loading) {
       return <div>Loading...</div>
     }
     return (
       <div>
-        <div className="col-md-6 col-md-offset-3">
+        <div className="col-sm-12">
+          <Link to="/" className="btn btn-link col-sm-1">Go back</Link>
+        </div>
+        <div className="col-sm-6">
           <h2>Profile</h2>
           <form name="form" onSubmit={this.handleSubmit}>
             <div className={'form-group' + (submitted && !user.firstName ? ' has-error' : '')}>
@@ -195,7 +236,31 @@ class ProfilePage extends React.Component {
               {loading &&
                 <img alt='' src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
               }
-              <Link to="/" className="btn btn-link">Go back</Link>
+            </div>
+          </form>
+        </div>
+        <div className="col-sm-5 col-sm-offset-1">
+          <h2>Change Password</h2>
+          <form name="form" onSubmit={this.handlePasswordSubmit}>
+            <div className={'form-group' + (passwordSubmitted && !passwordData.oldPassword ? ' has-error' : '')}>
+              <label htmlFor="oldPassword">old Password</label>
+              <input type="password" className="form-control" name="oldPassword" value={passwordData.oldPassword} onChange={this.handlePasswordChange} />
+              {passwordSubmitted && !passwordData.oldPassword &&
+                <div className="help-block">Old Password is required</div>
+              }
+            </div>
+            <div className={'form-group' + (passwordSubmitted && !passwordData.newPassword ? ' has-error' : '')}>
+              <label htmlFor="newPassword">new Password</label>
+              <input type="password" className="form-control" name="newPassword" value={passwordData.newPassword} onChange={this.handlePasswordChange} />
+              {passwordSubmitted && !passwordData.newPassword &&
+                <div className="help-block">New Password is required</div>
+              }
+            </div>
+            <div className="form-group">
+              <button className="btn btn-primary">Change Password</button>
+              {loading &&
+                <img alt='' src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+              }
             </div>
           </form>
         </div>
@@ -209,7 +274,6 @@ ProfilePage.defaultProps = {
 };
 
 function mapStateToProps(state, ownProps) {
-  debugger;
   const { loading, user } = state.users;
   return {
     loading: loading === false ? loading : true,

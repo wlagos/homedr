@@ -12,7 +12,6 @@ import { userService, bookingService } from '../_services';
 class EditBookingPage extends React.Component {
   constructor(props) {
     super(props);
-    debugger;
     this.state = {
       ...props,
       booking: {
@@ -175,7 +174,6 @@ EditBookingPage.defaultProps = {
 
 function mapStateToProps(state, ownProps) {
   const bookingId = ownProps.match.params.id;
-  debugger;
   const { booking: loading } = state.booking;
   const { currentUserId } = state.authentication;
   return {

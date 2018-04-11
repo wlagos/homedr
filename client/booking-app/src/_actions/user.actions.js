@@ -9,6 +9,7 @@ export const userActions = {
   register,
   forgetPassword,
   resetPassword,
+  changePassword,
   getAll,
   getById,
   updateById,
@@ -53,7 +54,6 @@ function register(user) {
     userService.register(user)
       .then(
         user => {
-          debugger;
           dispatch(success(user));
           history.push('/login');
           dispatch(alertActions.success('Registration successful! A verification link has been sent to your email.'));
@@ -116,6 +116,28 @@ function resetPassword(token, data) {
   function failure(error) { return { type: userConstants.RESET_PASSWORD_FAILURE, error } }
 }
 
+function changePassword(id, data) {
+  return dispatch => {
+    dispatch(request(data));
+
+    userService.changePassword(id, data)
+      .then(
+        data => {
+          dispatch(success(data));
+          dispatch(alertActions.success('Password updated successfully!'));
+        },
+        error => {
+          dispatch(failure(error));
+          dispatch(alertActions.error(error));
+        }
+      );
+  };
+
+  function request(data) { return { type: userConstants.CHANGE_PASSWORD_REQUEST } }
+  function success(data) { return { type: userConstants.CHANGE_PASSWORD_SUCCESS } }
+  function failure(error) { return { type: userConstants.CHANGE_PASSWORD_FAILURE, error } }
+}
+
 function getAll() {
   return dispatch => {
     dispatch(request());
@@ -166,7 +188,7 @@ function updateById(id, data) {
         },
         error => {
           dispatch(failure(id, error));
-          dispatch(alertActions.error(error));          
+          dispatch(alertActions.error(error));
         }
       );
   };

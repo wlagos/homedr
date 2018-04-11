@@ -5,6 +5,7 @@ const LOGIN_URL = `${HOST_URL}/api/AppUsers/login`;
 const REGISTER_URL = `${HOST_URL}/api/AppUsers`;
 const FORGET_PASSWORD_URL = `${HOST_URL}/api/AppUsers/reset`;
 const RESET_PASSWORD_URL = `${HOST_URL}/api/AppUsers/reset-password`;
+const CHANGE_PASSWORD_URL = `${HOST_URL}/api/AppUsers/change-password`;
 const GET_BY_ID_URL = `${HOST_URL}/api/AppUsers`;
 const UPDATE_BY_ID_URL = `${HOST_URL}/api/AppUsers`;
 
@@ -14,6 +15,7 @@ export const userService = {
   register,
   forgetPassword,
   resetPassword,
+  changePassword,
   getAll,
   getById,
   updateById,
@@ -110,6 +112,25 @@ function resetPassword(token, data) {
       return Promise.reject(response.statusText);
     }
     return data;
+  });
+}
+
+function changePassword(id, data) {
+  const requestOptions = {
+    method: 'POST',
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  };
+  return fetch(CHANGE_PASSWORD_URL, requestOptions).then((result) => {
+    if(result.status == 204) {
+      return {};
+    }
+    return result.json()
+  }).then((response) => {
+    if (response.error) {
+      return Promise.reject(response.error.message);
+    }
+    return response;
   });
 }
 

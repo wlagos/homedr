@@ -92,6 +92,28 @@ export function users(state = {}, action) {
           loading: false
         }
       };
+
+    case userConstants.CHANGE_PASSWORD_REQUEST:
+      return {
+        ...state,
+        ...{
+          loading: true
+        }
+      };
+    case userConstants.CHANGE_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        ...{
+          loading: false,
+        }
+      };
+    case userConstants.CHANGE_PASSWORD_FAILURE:
+      return {
+        ...state,
+        ...{
+          loading: false
+        }
+      };
     default:
       return state
   }
