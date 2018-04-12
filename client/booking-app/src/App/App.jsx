@@ -9,6 +9,7 @@ import { HomePage } from '../HomePage';
 import { BookingPage } from '../BookingPage';
 import { EditBookingPage } from '../EditBookingPage';
 import { BookingListPage } from '../BookingListPage';
+import { UserListPage } from '../UserListPage';
 import { LoginPage } from '../LoginPage';
 import { RegisterPage } from '../RegisterPage';
 import { ForgetPasswordPage } from '../ForgetPasswordPage';
@@ -41,6 +42,7 @@ class App extends React.Component {
                 <PrivateRoute exact path="/booking" component={BookingPage} />
                 <PrivateRoute path="/booking/:id" component={EditBookingPage} />
                 <PrivateRoute exact path="/bookings" component={BookingListPage} />
+                <PrivateRoute exact path="/users" component={UserListPage} />
                 <PrivateRoute exact path="/profile" component={ProfilePage} />
                 <Route path="/login" component={LoginPage} />
                 <Route path="/register" component={RegisterPage} />

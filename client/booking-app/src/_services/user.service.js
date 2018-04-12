@@ -7,6 +7,7 @@ const FORGET_PASSWORD_URL = `${HOST_URL}/api/AppUsers/reset`;
 const RESET_PASSWORD_URL = `${HOST_URL}/api/AppUsers/reset-password`;
 const CHANGE_PASSWORD_URL = `${HOST_URL}/api/AppUsers/change-password`;
 const GET_BY_ID_URL = `${HOST_URL}/api/AppUsers`;
+const GET_ALL_URL = `${HOST_URL}/api/AppUsers`;
 const UPDATE_BY_ID_URL = `${HOST_URL}/api/AppUsers`;
 
 export const userService = {
@@ -59,10 +60,10 @@ function logout() {
 function getAll() {
   const requestOptions = {
     method: 'GET',
-    headers: authHeader()
+    headers: { ...authHeader(), 'Content-Type': 'application/json' }
   };
 
-  return fetch('/users', requestOptions).then(handleResponse);
+  return fetch(GET_ALL_URL, requestOptions).then(handleResponse);
 }
 
 function getById(id) {
@@ -122,7 +123,7 @@ function changePassword(id, data) {
     body: JSON.stringify(data)
   };
   return fetch(CHANGE_PASSWORD_URL, requestOptions).then((result) => {
-    if(result.status == 204) {
+    if (result.status == 204) {
       return {};
     }
     return result.json()
