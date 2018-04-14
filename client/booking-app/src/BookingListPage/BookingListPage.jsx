@@ -19,8 +19,10 @@ class BookingListPage extends React.Component {
   componentWillMount() {
     this.props.dispatch(bookingActions.getAll());
     let accessTokenData = JSON.parse(localStorage.getItem('accessToken'));
-    this.state.role = accessTokenData.role || 'PATIENT';
-    this.setState(this.state);
+    if(accessTokenData) {
+      this.state.role = accessTokenData.role || 'PATIENT';
+      this.setState(this.state);
+    }
   }
 
   componentWillReceiveProps(nextProps) {

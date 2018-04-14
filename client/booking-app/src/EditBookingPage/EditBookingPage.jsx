@@ -41,8 +41,10 @@ class EditBookingPage extends React.Component {
 
   componentWillMount() {
     let accessTokenData = JSON.parse(localStorage.getItem('accessToken'));
-    this.state.role = accessTokenData.role || 'PATIENT';
-    this.setState(this.state);
+    if (accessTokenData) {
+      this.state.role = accessTokenData.role || 'PATIENT';
+      this.setState(this.state);
+    }
   }
 
   componentDidMount() {
@@ -172,15 +174,15 @@ class EditBookingPage extends React.Component {
               }
             </div>
             {
-              (role === 'DISPATCHER' || role === 'ADMIN')?
-              <div className={'form-group'}>
-                <label htmlFor="state">Provider</label>
-                <select className="form-control" name="providerId" disabled={booking.status !== 'PENDING'} value={booking.providerId} onChange={this.handleChange}>
-                  <option value="">Select Provider</option>  
-                  <option value="5ad157deac78af35f4e84fd1">Provider HomeDr</option>
-                </select>
-              </div>
-              : <span></span>
+              (role === 'DISPATCHER' || role === 'ADMIN') ?
+                <div className={'form-group'}>
+                  <label htmlFor="state">Provider</label>
+                  <select className="form-control" name="providerId" disabled={booking.status !== 'PENDING'} value={booking.providerId} onChange={this.handleChange}>
+                    <option value="">Select Provider</option>
+                    <option value="5ad157deac78af35f4e84fd1">Provider HomeDr</option>
+                  </select>
+                </div>
+                : <span></span>
             }
             {/*
               <div className={'form-group' + (submitted && (!booking.status) ? ' has-error' : '')}>

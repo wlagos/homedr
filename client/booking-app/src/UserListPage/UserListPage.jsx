@@ -17,7 +17,7 @@ class UserListPage extends React.Component {
   }
   componentWillMount() {
     let accessTokenData = JSON.parse(localStorage.getItem('accessToken'));
-    if (accessTokenData.role !== "ADMIN") {
+    if (!accessTokenData || accessTokenData.role !== "ADMIN") {
       return history.goBack();
     }
     this.props.dispatch(userActions.getAll());

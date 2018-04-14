@@ -19,8 +19,10 @@ class HomePage extends React.Component {
 
   componentWillMount() {
     let accessTokenData = JSON.parse(localStorage.getItem('accessToken'));
-    this.state.role = accessTokenData.role || 'PATIENT';
-    this.setState(this.state);
+    if (accessTokenData) {
+      this.state.role = accessTokenData.role || 'PATIENT';
+      this.setState(this.state);
+    }
   }
 
   handleDeleteUser(id) {
