@@ -74,6 +74,18 @@ function createBooking(data, options, cb) {
       bookingObj.paymentToken = chargeInstance;
       bookingObj.userId = options.accessToken.userId;
 
+      let dispatcherFilter = {
+        where: {
+          email: 'dispatcher@homedr.com'
+        }
+      }
+      try {
+        let dispatcherUser = await AppUser.findOne(dispatcherFilter, options);
+        bookingObj.dispatcherId = dispatcherUser ? dispatcherUser.id : null;
+      } catch (error) {
+        console.error('ERROR > ', error);
+      }
+
       let bookingInstance = await Booking.create(bookingObj, options);
 
       return cb(null, bookingInstance);
@@ -217,15 +229,15 @@ module.exports = function (Booking) {
       try {
         let roles = await Role.getRoles(filter, { returnOnlyRoleNames: true });
         let where = {};
-        if (_.includes(roles, ['ADMIN'])) {
+        if (_.includes(roles, 'ADMIN')) {
           where = {
             // userId: ctx.req.accessToken.userId
           }
-        } else if (_.includes(roles, ['DISPATCHER'])) {
+        } else if (_.includes(roles, 'DISPATCHER')) {
           where = {
             dispatcherId: ctx.req.accessToken.userId
           }
-        } else if (_.includes(roles, ['PROVIDER'])) {
+        } else if (_.includes(roles, 'PROVIDER')) {
           where = {
             providerId: ctx.req.accessToken.userId
           }
@@ -240,8 +252,12 @@ module.exports = function (Booking) {
             }
           }
         }
-        ctx.args.filter.where = {
-          and: [ctx.args.filter.where, where]
+        if (!ctx.args.filter.where) {
+          ctx.args.filter.where = where
+        } else {
+          ctx.args.filter.where = {
+            and: [ctx.args.filter.where, where]
+          }
         }
         next();
       } catch (error) {
@@ -250,6 +266,16 @@ module.exports = function (Booking) {
 
     }
     checkRole();
+  });
+
+  Booking.beforeRemote('prototype.patchAttributes', (ctx, instance, next) => {
+    if (instance instanceof Function) {
+      next = instance;
+    }
+    if (ctx.req.body && ctx.req.body.status === 'PENDING' && ctx.req.body.providerId) {
+      ctx.req.body.status = 'CONFIRMED';
+    }
+    next();
   });
 
   // Creating Booking Custom
@@ -277,5 +303,34 @@ module.exports = function (Booking) {
       path: '/charge'
     },
     returns: { arg: 'data', type: 'object', root: true }
+  });
+
+  Booking.observe('before save', (ctx, next) => {
+    if (ctx.isNewInstance && !ctx.currentInstance) {
+      return next();
+    }
+    ctx.hookState.oldStatus = ctx.currentInstance.status;
+    next();
+  });
+
+  Booking.observe('after save', (ctx, next) => {
+    if (ctx.isNewInstance || !ctx.hookState) {
+      return next();
+    }
+    if (ctx.hookState.oldStatus == 'PENDING' && ctx.instance.status == 'CONFIRMED') {
+      const doCharge = async () => {
+        ctx.instance.charge(ctx.options, (error, successObj) => {
+          if (error) {
+            return next(error);
+          }
+          next(null, ctx.instance);
+        });
+
+      }
+
+      doCharge();
+    } else {
+      next();
+    }
   });
 };

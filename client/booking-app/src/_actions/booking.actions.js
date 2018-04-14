@@ -56,14 +56,16 @@ function updateById(id, data) {
       .then(
         booking => {
           dispatch(success(booking));
+          dispatch(alertActions.success('Booking updated successfully!'));
         },
         error => {
           dispatch(failure(id, error));
+          dispatch(alertActions.error(error));
         }
       );
   };
 
-  function request(id) { return { type: bookingConstants.UPDATE_BY_ID_REQUEST, id, data } }
+  function request(id, data) { return { type: bookingConstants.UPDATE_BY_ID_REQUEST, id, data } }
   function success(booking) { return { type: bookingConstants.UPDATE_BY_ID_SUCCESS, booking } }
   function failure(id, error) { return { type: bookingConstants.UPDATE_BY_ID_FAILURE, id, error } }
 }

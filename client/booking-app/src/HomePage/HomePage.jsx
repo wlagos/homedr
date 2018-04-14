@@ -9,7 +9,7 @@ class HomePage extends React.Component {
     super(props);
     this.state = {
       ...props,
-      isAdmin: false
+      role: 'PATIENT'
     }
   }
 
@@ -19,10 +19,8 @@ class HomePage extends React.Component {
 
   componentWillMount() {
     let accessTokenData = JSON.parse(localStorage.getItem('accessToken'));
-    if (accessTokenData.role === "ADMIN") {
-      this.state.isAdmin = true;
-      this.setState(this.state);
-    }
+    this.state.role = accessTokenData.role || 'PATIENT';
+    this.setState(this.state);
   }
 
   handleDeleteUser(id) {
@@ -31,7 +29,7 @@ class HomePage extends React.Component {
 
   render() {
     const { user } = this.props;
-    const { isAdmin } = this.state;
+    const { role } = this.state;
     if (user) {
       return (
         <div className="col-md-6 col-md-offset-3">
@@ -39,12 +37,15 @@ class HomePage extends React.Component {
           <p>You're logged in with {user.email}!!</p>
           <p>
             <Link to="/profile">Profile</Link><br />
-            {isAdmin ?
+            {role === 'ADMIN' ?
               <div><Link to="/users">Users</Link><br /></div>
               : <span></span>
             }
             <Link to="/bookings">Bookings</Link><br />
-            <Link to="/booking">Book</Link><br />
+            {role === 'PATIENT' ?
+              <div><Link to="/booking">Book</Link><br /></div>
+              : <span></span>
+            }
             <Link to="/login">Logout</Link>
           </p>
         </div>

@@ -10,11 +10,17 @@ class BookingListPage extends React.Component {
 
   constructor(props) {
     super(props);
-
+    this.state = {
+      ...props,
+      role: 'PATIENT'
+    };
     this.deleteBooking = this.deleteBooking.bind(this);
   }
   componentWillMount() {
     this.props.dispatch(bookingActions.getAll());
+    let accessTokenData = JSON.parse(localStorage.getItem('accessToken'));
+    this.state.role = accessTokenData.role || 'PATIENT';
+    this.setState(this.state);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -27,26 +33,32 @@ class BookingListPage extends React.Component {
 
   render() {
     const { user, users, bookings, _booking } = this.props;
+    const { role } = this.state;
     console.log("_Booking", _booking);
-    if(_booking) {
+    if (_booking) {
       return <div>Loading...</div>
     }
     return (
-      <div className="">
-        <h2>Booking Table</h2>
+      <div>
+        <Link to="/" className="btn btn-link">Go back</Link>
+        <div className="">
+          <h2>Booking Table</h2>
 
-        <div className="row">
-          <div className="col-md-6">
+          <div className="row">
+            <div className="col-md-6">
+            </div>
+            {
+              role === 'PATIENT' ?
+              <div className="col-md-6 text-right">
+                <Link to="/booking" className="btn btn-primary">New Booking</Link>
+              </div>
+              : <span></span>
+            }
           </div>
-          <div className="col-md-6 text-right">
-            <Link to="/booking" className="btn btn-primary">New Booking</Link>
-          </div>
+          {(bookings && bookings.length > 0) &&
+            <BookingList bookings={bookings} onDelete={this.deleteBooking} />}
         </div>
-        {(bookings && bookings.length > 0) &&
-          <BookingList bookings={bookings} onDelete={this.deleteBooking} />}
       </div>
-
-
     );
   }
 }
