@@ -24,7 +24,8 @@
     "moment": "2.20.1",
     "serve-favicon": "2.4.5",
     "stripe": "5.5.0",
-    "strong-error-handler": "2.3.1"
+    "strong-error-handler": "2.3.1",
+    "twilio": "3.15.0"
   },
   "devDependencies": {
     "eslint": "^3.17.1",

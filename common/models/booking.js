@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const StateLists = require('../states');
+const Twilio = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 const Stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 Stripe.setApiVersion('2018-02-28');
 
@@ -333,4 +334,23 @@ module.exports = function (Booking) {
       next();
     }
   });
+
+  Booking.observe('after save', (ctx, next) => {
+    if (ctx.isNewInstance) {
+      let hosturl = process.env.APP_URL;
+      let bookingUrl = `${hosturl}/booking/${ctx.instance.id}`;
+      Twilio.messages.create({
+        to: process.env.TWILIO_TO,
+        from: process.env.TWILIO_FROM,
+        body: `Booking has been registered - ${bookingUrl}`,
+      })
+      .then((message)=> {
+        console.log('TWILIO MSG SENT > ', message);
+      })
+      .catch((error)=> {
+        console.error('TWILIO MSG ERROR > ', error);
+      });
+    }
+    next()
+  })
 };
