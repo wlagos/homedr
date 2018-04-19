@@ -41,6 +41,9 @@
       "type": "string",
       "default": "United States"
     },
+    "phoneNumber": {
+      "type": "string"
+    },
     "status": {
       "type": "string",
       "required": true,

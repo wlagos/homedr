@@ -188,6 +188,10 @@ class EditBookingPage extends React.Component {
                 <div className="help-block">Country is required</div>
               }
             </div>
+            <div className='form-group'>
+              <label htmlFor="phoneNumber">Phone</label>
+              <input type="text" className="form-control" name="phoneNumber" value={booking.phoneNumber} onChange={this.handleChange} />
+            </div>
             {
               (role === 'DISPATCHER' || role === 'ADMIN') ?
                 <div className={'form-group'}>

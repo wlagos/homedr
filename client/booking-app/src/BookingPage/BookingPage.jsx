@@ -59,6 +59,7 @@ class BookingPage extends React.Component {
         state: userData.state ? userData.state : '',
         zip: userData.zip ? userData.zip : '',
         country: userData.country ? userData.country : '',
+        phoneNumber: userData.phoneNumber ? userData.phoneNumber : '',
       }
       this.setState(this.state);
     }
@@ -78,6 +79,7 @@ class BookingPage extends React.Component {
           state: userData.state ? userData.state : '',
           zip: userData.zip ? userData.zip : '',
           country: userData.country ? userData.country : '',
+          phoneNumber: userData.phoneNumber ? userData.phoneNumber : '',
         }
         let _defaultCard, _newCard = false;
         if (userData.stripeCustomer && userData.stripeCustomer.sources.data) {
@@ -109,7 +111,7 @@ class BookingPage extends React.Component {
     // this.setState({ submitted: true });
     const { booking } = this.state;
     const { dispatch, currentUserId } = this.props;
-    const REQUIRED_FIELDS = ['address1', 'address2', 'city', 'state', 'zip', 'country']
+    const REQUIRED_FIELDS = ['address1', 'address2', 'city', 'state', 'country']
 
     let allValid = true;
     _.forEach(REQUIRED_FIELDS, (value, index) => {
@@ -119,7 +121,12 @@ class BookingPage extends React.Component {
       }
     });
 
-    if (allValid && (booking.state !== 'Select State') && (booking.zip.length == 5)) {
+    if (!booking['zip'] || (booking['zip'].toString().length !== 5)) {
+      allValid = false;
+      return;
+    }
+
+    if (allValid && (booking.state !== 'Select State')) {
       this.state.isFormValid = true;
     }
     this.setState(this.state);
@@ -240,12 +247,12 @@ class BookingPage extends React.Component {
                   <div className="help-block">State is required</div>
                 }
               </div>
-              <div className={'form-group' + (submitted && (!booking.zip || (booking.zip.length != 5)) ? ' has-error' : '')}>
+              <div className={'form-group' + (submitted && (!booking.zip || (booking.zip.toString().length != 5)) ? ' has-error' : '')}>
                 <label htmlFor="zip">Zip</label>
                 <input type="text" className="form-control" name="zip" value={booking.zip} onChange={this.handleChange} />
                 {submitted && !booking.zip &&
                   <div className="help-block">Zip is required</div> ||
-                  (submitted && (booking.zip.length != 5) &&
+                  (submitted && (booking.zip.toString().length != 5) &&
                     <div className="help-block">Zip must be of length 5</div>)
                 }
               </div>
@@ -255,6 +262,10 @@ class BookingPage extends React.Component {
                 {submitted && !booking.country &&
                   <div className="help-block">Country is required</div>
                 }
+              </div>
+              <div className='form-group'>
+                <label htmlFor="phoneNumber">Phone</label>
+                <input type="text" className="form-control" name="phoneNumber" value={booking.phoneNumber} onChange={this.handleChange} />
               </div>
               <div className="form-group">
                 <button className="btn btn-primary">Book</button>
