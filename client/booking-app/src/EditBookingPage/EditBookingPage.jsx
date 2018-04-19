@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as _ from 'lodash';
 
-import { bookingActions } from '../_actions';
+import { bookingActions, userActions } from '../_actions';
 
 import { statesList } from '../_constants';
 
@@ -37,9 +37,17 @@ class EditBookingPage extends React.Component {
       this.state.booking = nextProps.booking;
       this.setState(this.state);
     }
+    if (!nextProps.providersLoading && !_.isEmpty(nextProps.users)) {
+      this.state.users = nextProps.users;
+      this.state.providersLoading = nextProps.providersLoading;
+      this.setState(this.state);
+    }
   }
 
   componentWillMount() {
+    const { dispatch } = this.props;
+    dispatch(userActions.getUsersByRole('PROVIDER'));
+
     let accessTokenData = JSON.parse(localStorage.getItem('accessToken'));
     if (accessTokenData) {
       this.state.role = accessTokenData.role || 'PATIENT';
@@ -112,8 +120,9 @@ class EditBookingPage extends React.Component {
 
   render() {
     // const { loading } = this.props;
-    const { booking, submitted, loading, status, role } = this.state;
-    if (loading) {
+    const { booking, submitted, loading, status, role, providersLoading, users } = this.state;
+    debugger;
+    if (loading || providersLoading) {
       return <div>Loading...</div>
     }
     return (
@@ -179,7 +188,12 @@ class EditBookingPage extends React.Component {
                   <label htmlFor="state">Provider</label>
                   <select className="form-control" name="providerId" disabled={booking.status !== 'PENDING'} value={booking.providerId} onChange={this.handleChange}>
                     <option value="">Select Provider</option>
-                    <option value="5ad157deac78af35f4e84fd1">Provider HomeDr</option>
+                    {users.map(function (value, index) {
+                      return (
+                        <option key={value.id} value={value.id}>{value.firstName ? value.firstName : ''} {value.lastName ? value.lastName : ''}</option>
+                      )
+                    })}
+                    {/*<option value="5ad157deac78af35f4e84fd1">Provider HomeDr</option>*/}
                   </select>
                 </div>
                 : <span></span>
@@ -225,10 +239,13 @@ function mapStateToProps(state, ownProps) {
 
   const bookingId = ownProps.match.params.id;
   const { booking, loading } = state.booking;
+  const { users, loading: providersLoading } = state.users;
   const { currentUserId } = state.authentication;
   debugger;
   return {
     loading: loading === false ? loading : true,
+    providersLoading: providersLoading === false ? providersLoading : true,
+    users,
     currentUserId,
     bookingId,
     booking: booking || {}

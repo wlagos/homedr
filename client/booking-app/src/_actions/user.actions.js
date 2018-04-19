@@ -11,6 +11,7 @@ export const userActions = {
   resetPassword,
   changePassword,
   getAll,
+  getUsersByRole,
   getById,
   updateById,
   delete: _delete
@@ -152,6 +153,22 @@ function getAll() {
   function request() { return { type: userConstants.GETALL_REQUEST } }
   function success(users) { return { type: userConstants.GETALL_SUCCESS, users } }
   function failure(error) { return { type: userConstants.GETALL_FAILURE, error } }
+}
+
+function getUsersByRole(role) {
+  return dispatch => {
+    dispatch(request());
+
+    userService.getUsersByRole(role)
+      .then(
+        users => dispatch(success(users)),
+        error => dispatch(failure(error))
+      );
+  };
+
+  function request() { return { type: userConstants.GET_USERS_BY_ROLE_REQUEST } }
+  function success(users) { return { type: userConstants.GET_USERS_BY_ROLE_SUCCESS, users } }
+  function failure(error) { return { type: userConstants.GET_USERS_BY_ROLE_FAILURE, error } }
 }
 
 function getById(id) {

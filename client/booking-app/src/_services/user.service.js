@@ -8,6 +8,7 @@ const RESET_PASSWORD_URL = `${HOST_URL}/api/AppUsers/reset-password`;
 const CHANGE_PASSWORD_URL = `${HOST_URL}/api/AppUsers/change-password`;
 const GET_BY_ID_URL = `${HOST_URL}/api/AppUsers`;
 const GET_ALL_URL = `${HOST_URL}/api/AppUsers`;
+const GET_USERS_BY_ROLE_URL = `${HOST_URL}/api/AppUsers/getUsersByRole`;
 const UPDATE_BY_ID_URL = `${HOST_URL}/api/AppUsers`;
 
 export const userService = {
@@ -18,6 +19,7 @@ export const userService = {
   resetPassword,
   changePassword,
   getAll,
+  getUsersByRole,
   getById,
   updateById,
   update,
@@ -64,6 +66,15 @@ function getAll() {
   };
 
   return fetch(GET_ALL_URL, requestOptions).then(handleResponse);
+}
+
+function getUsersByRole(role) {
+  const requestOptions = {
+    method: 'GET',
+    headers: { ...authHeader(), 'Content-Type': 'application/json' }
+  };
+  let URL = `${GET_USERS_BY_ROLE_URL}?role=${role}`;
+  return fetch(URL, requestOptions).then(handleResponse);
 }
 
 function getById(id) {

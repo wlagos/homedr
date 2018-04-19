@@ -119,6 +119,24 @@ export function users(state = {}, action) {
           loading: false
         }
       };
+
+    case userConstants.GET_USERS_BY_ROLE_REQUEST:
+      return {
+        ...state,
+        loading: true
+      };
+    case userConstants.GET_USERS_BY_ROLE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        users: action.users
+      };
+    case userConstants.GET_USERS_BY_ROLE_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.error
+      };
     default:
       return state
   }

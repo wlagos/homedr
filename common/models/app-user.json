@@ -89,6 +89,15 @@
     {
       "accessType": "*",
       "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "properties": [
+        "getUsersByRole"
+      ]
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
       "principalId": "ADMIN",
       "permission": "ALLOW"
     }
