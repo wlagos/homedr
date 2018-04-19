@@ -235,7 +235,7 @@ class EditBookingPage extends React.Component {
             <div className="form-group">
               <button className="btn btn-primary" disabled={booking.status !== 'PENDING'} >Update</button>&nbsp;&nbsp;
               {
-                (role !== 'PATIENT') ?
+                (role === 'PROVIDER' && role === 'ADMIN') ?
                   <span><button className="btn btn-primary" disabled={booking.status !== 'CONFIRMED'} onClick={(event) => this.updateStatus('COMPLETED', event)}>Complete</button> &nbsp; &nbsp;</span>
                   : <span></span>
               }
