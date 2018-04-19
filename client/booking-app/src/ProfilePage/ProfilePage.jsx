@@ -92,7 +92,7 @@ class ProfilePage extends React.Component {
     if (allValid && (user.state !== 'Select State') && (user.zip && user.zip.toString().length === 5)) {
       this.setState(this.state);
       const { dispatch } = this.props;
-      let updateData = _.pick(user, ['firstName', 'lastName', 'dob', 'state', 'address1', 'address2', 'city', 'zip', 'country', 'subscription']);
+      let updateData = _.pick(user, ['firstName', 'lastName', 'dob', 'state', 'address1', 'address2', 'city', 'zip', 'country', 'subscription', 'phoneNumber']);
       dispatch(userActions.updateById(userId, updateData));
     }
   }
@@ -227,6 +227,10 @@ class ProfilePage extends React.Component {
               {submitted && !user.country &&
                 <div className="help-block">Country is required</div>
               }
+            </div>
+            <div className='form-group'>
+              <label htmlFor="phoneNumber">Phone</label>
+              <input type="text" className="form-control" name="phoneNumber" value={user.phoneNumber} onChange={this.handleChange} />
             </div>
             <div className='form-group checkbox'>
               <label htmlFor="subscription"><input type="checkbox" name="subscription" value={user.subscription} checked={user.subscription} onChange={this.handleChange} /> Subscribe</label>
