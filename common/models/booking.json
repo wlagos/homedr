@@ -52,6 +52,9 @@
     "completedDate": {
       "type": "date"
     },
+    "cancelledDate": {
+      "type": "date"
+    },
     "dispatcherId": {
       "type": "string"
     },
@@ -63,7 +66,7 @@
     }
   },
   "hidden": [
-    "paymentToken"
+    
   ],
   "validations": [],
   "relations": {

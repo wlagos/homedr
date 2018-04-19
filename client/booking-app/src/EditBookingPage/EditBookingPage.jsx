@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as _ from 'lodash';
+import * as moment from 'moment';
 
 import { bookingActions, userActions } from '../_actions';
 
@@ -115,6 +116,11 @@ class EditBookingPage extends React.Component {
     let updateData = {
       status
     }
+    if (status == 'COMPLETED') {
+      updateData.completedDate = new Date();
+    } else if (status == 'CANCELLED') {
+      updateData.cancelledDate = new Date();
+    }
     dispatch(bookingActions.updateById(this.props.bookingId, updateData));
   }
 
@@ -197,6 +203,20 @@ class EditBookingPage extends React.Component {
                   </select>
                 </div>
                 : <span></span>
+            }
+            {
+              (booking.paymentToken && booking.paymentToken.amount && booking.paymentToken.paid) ?
+                <div className={'form-group'}>
+                  <label htmlFor="amount">Amount Charged</label>
+                  <input type="text" className="form-control disabled" name="amount" value={'$ '+(booking.paymentToken.amount/100)} disabled />
+                </div> : <span></span>
+            }
+            {
+              (booking.confirmationDate) ?
+                <div className={'form-group'}>
+                  <label htmlFor="confirmationDate">Charged Date</label>
+                  <input type="text" className="form-control disabled" name="confirmationDate" value={moment(booking.confirmationDate.dob).format('MM-DD-YYYY -- hh:mm a')} disabled />
+                </div> : <span></span>
             }
             {/*
               <div className={'form-group' + (submitted && (!booking.status) ? ' has-error' : '')}>

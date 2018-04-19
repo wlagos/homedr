@@ -276,6 +276,7 @@ module.exports = function (Booking) {
     }
     if (ctx.req.body && ctx.req.body.status === 'PENDING' && ctx.req.body.providerId) {
       ctx.req.body.status = 'CONFIRMED';
+      ctx.req.body.confirmationDate = new Date();
     }
     next();
   });
@@ -312,6 +313,12 @@ module.exports = function (Booking) {
       return next();
     }
     ctx.hookState.oldStatus = ctx.currentInstance.status;
+    if(ctx.data && ctx.data.status == 'COMPLETED' && ctx.currentInstance.status != 'COMPLETED') {
+      ctx.data.completedDate = new Date();
+    }
+    if(ctx.data && ctx.data.status == 'CANCELLED' && ctx.currentInstance.status != 'CANCELLED') {
+      ctx.data.cancelledDate = new Date();
+    }
     next();
   });
 
