@@ -17,6 +17,10 @@
       "type": "string",
       "required": true
     },
+    "phoneNumber": {
+      "type": "string",
+      "required": false
+    },
     "terms": {
       "type": "boolean",
       "required": true,

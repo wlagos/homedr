@@ -99,15 +99,6 @@ class RegisterPage extends React.Component {
               <div className="help-block">Last Name is required</div>
             }
           </div>
-          <div className={'form-group' + (submitted && (!user.dob || this.inValidDob()) ? ' has-error' : '')}>
-            <label htmlFor="dob">Date of Birth</label>
-            <input type="date" className="form-control" name="dob" max={moment().format('YYYY-MM-DD')} value={user.dob} onChange={this.handleChange} />
-            {(submitted && !user.dob &&
-              <div className="help-block">Date of Birth is required</div>) ||
-              (submitted && this.inValidDob() &&
-                <div className="help-block">Must be 18 years or above!</div>)
-            }
-          </div>
           <div className={'form-group' + (submitted && !user.email ? ' has-error' : '')}>
             <label htmlFor="email">Email</label>
             <input type="text" className="form-control" name="email" value={user.email} onChange={this.handleChange} />
@@ -115,18 +106,13 @@ class RegisterPage extends React.Component {
               <div className="help-block">Email is required</div>
             }
           </div>
-          <div className={'form-group' + (submitted && (!user.state || user.state === 'State State') ? ' has-error' : '')}>
-            <label htmlFor="state">State</label>
-            <select className="form-control" name="state" value={user.state} onChange={this.handleChange}>
-              <option value="State State">Select State</option>
-              {this.props.states.map(function (value, index) {
-                return (
-                  <option key={value} value={value}>{value}</option>
-                )
-              })}
-            </select>
-            {submitted && (!user.state || user.state === 'State State') &&
-              <div className="help-block">State is required</div>
+          <div className={'form-group' + (submitted && (!user.dob || this.inValidDob()) ? ' has-error' : '')}>
+            <label htmlFor="dob">Date of Birth</label>
+            <input type="date" className="form-control" name="dob" max={moment().format('YYYY-MM-DD')} value={user.dob} onChange={this.handleChange} />
+            {(submitted && !user.dob &&
+              <div className="help-block">Date of Birth is required</div>) ||
+              (submitted && this.inValidDob() &&
+                <div className="help-block">Must be 18 years or above!</div>)
             }
           </div>
           <div className={'form-group' + (submitted && !user.password ? ' has-error' : '')}>
@@ -166,11 +152,25 @@ class RegisterPage extends React.Component {
               <div className="help-block">City is required</div>
             }
           </div>
+          <div className={'form-group' + (submitted && (!user.state || user.state === 'State State') ? ' has-error' : '')}>
+            <label htmlFor="state">State</label>
+            <select className="form-control" name="state" value={user.state} onChange={this.handleChange}>
+              <option value="State State">Select State</option>
+              {this.props.states.map(function (value, index) {
+                return (
+                  <option key={value} value={value}>{value}</option>
+                )
+              })}
+            </select>
+            {submitted && (!user.state || user.state === 'State State') &&
+              <div className="help-block">State is required</div>
+            }
+          </div>
           <div className={'form-group' + (submitted && (!user.zip || (user.zip.length != 5)) ? ' has-error' : '')}>
             <label htmlFor="zip">Zip</label>
             <input type="text" className="form-control" name="zip" value={user.zip} onChange={this.handleChange} />
             {(submitted && !user.zip &&
-              <div className="help-block">Zip is required</div>) || 
+              <div className="help-block">Zip is required</div>) ||
               (submitted && (user.zip.length != 5) &&
                 <div className="help-block">Zip must be of length 5</div>)
             }
@@ -181,6 +181,10 @@ class RegisterPage extends React.Component {
             {submitted && !user.country &&
               <div className="help-block">Country is required</div>
             }
+          </div>
+          <div className='form-group'>
+            <label htmlFor="phoneNumber">Phone</label>
+            <input type="text" className="form-control" name="phoneNumber" value={user.phoneNumber} onChange={this.handleChange} />
           </div>
           <div className={'form-group' + (submitted && !user.terms ? ' has-error' : '') + ' checkbox'}>
             <label htmlFor="terms"><input type="checkbox" name="terms" value={user.terms} onChange={this.handleChange} /> Terms</label>
