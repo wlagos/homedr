@@ -205,10 +205,10 @@ class EditBookingPage extends React.Component {
                 : <span></span>
             }
             {
-              (booking.paymentToken && booking.paymentToken.amount && booking.paymentToken.paid) ?
+              (booking.paymentToken && booking.paymentToken.amount && booking.paymentToken.paid && booking.paymentToken.captured) ?
                 <div className={'form-group'}>
                   <label htmlFor="amount">Amount Charged</label>
-                  <input type="text" className="form-control disabled" name="amount" value={'$ '+(booking.paymentToken.amount/100)} disabled />
+                  <input type="text" className="form-control disabled" name="amount" value={'$ ' + (booking.paymentToken.amount / 100)} disabled />
                 </div> : <span></span>
             }
             {

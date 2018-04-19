@@ -50,6 +50,18 @@ class BookingPage extends React.Component {
 
   componentDidMount() {
     let userData = JSON.parse(localStorage.getItem('user'));
+    if (userData) {
+      this.state.booking = {
+        ...this.state.booking,
+        address1: userData.address1 ? userData.address1 : '',
+        address2: userData.address2 ? userData.address2 : '',
+        city: userData.city ? userData.city : '',
+        state: userData.state ? userData.state : '',
+        zip: userData.zip ? userData.zip : '',
+        country: userData.country ? userData.country : '',
+      }
+      this.setState(this.state);
+    }
     userService.getById(userData.id)
       .then((response) => {
         if (response.error) {
@@ -58,6 +70,15 @@ class BookingPage extends React.Component {
         }
         localStorage.setItem('user', JSON.stringify(response));
         userData = JSON.parse(localStorage.getItem('user'));
+        this.state.booking = {
+          ...this.state.booking,
+          address1: userData.address1 ? userData.address1 : '',
+          address2: userData.address2 ? userData.address2 : '',
+          city: userData.city ? userData.city : '',
+          state: userData.state ? userData.state : '',
+          zip: userData.zip ? userData.zip : '',
+          country: userData.country ? userData.country : '',
+        }
         let _defaultCard, _newCard = false;
         if (userData.stripeCustomer && userData.stripeCustomer.sources.data) {
           let defaultCard = _.find(userData.stripeCustomer.sources.data, ['id', userData.stripeCustomer.default_source]);
