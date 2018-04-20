@@ -83,7 +83,6 @@ class EditBookingPage extends React.Component {
   }
 
   handleSubmit(event) {
-    debugger;
     event.preventDefault();
     this.state.submitted = true;
     // this.setState({ submitted: true });
@@ -127,7 +126,6 @@ class EditBookingPage extends React.Component {
   render() {
     // const { loading } = this.props;
     const { booking, submitted, loading, status, role, providersLoading, users } = this.state;
-    debugger;
     if (loading || providersLoading) {
       return <div>Loading...</div>
     }
@@ -265,7 +263,6 @@ function mapStateToProps(state, ownProps) {
   const { booking, loading } = state.booking;
   const { users, loading: providersLoading } = state.users;
   const { currentUserId } = state.authentication;
-  debugger;
   return {
     loading: loading === false ? loading : true,
     providersLoading: providersLoading === false ? providersLoading : true,

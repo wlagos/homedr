@@ -10,6 +10,7 @@ const GET_BY_ID_URL = `${HOST_URL}/api/AppUsers`;
 const GET_ALL_URL = `${HOST_URL}/api/AppUsers`;
 const GET_USERS_BY_ROLE_URL = `${HOST_URL}/api/AppUsers/getUsersByRole`;
 const UPDATE_BY_ID_URL = `${HOST_URL}/api/AppUsers`;
+const ASSIGN_ROLE_URL = `${HOST_URL}/api/AppUsers/assignRole`;
 
 export const userService = {
   login,
@@ -20,6 +21,7 @@ export const userService = {
   changePassword,
   getAll,
   getUsersByRole,
+  assignRole,
   getById,
   updateById,
   update,
@@ -75,6 +77,15 @@ function getUsersByRole(role) {
   };
   let URL = `${GET_USERS_BY_ROLE_URL}?role=${role}`;
   return fetch(URL, requestOptions).then(handleResponse);
+}
+
+function assignRole(data) {
+  const requestOptions = {
+    method: 'POST',
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  };
+  return fetch(ASSIGN_ROLE_URL, requestOptions).then(handleResponse);
 }
 
 function getById(id) {

@@ -93,7 +93,7 @@ function assignRole(data, options, cb) {
     await assignNewRole();
     cb(null, {
       statusCode: 200,
-      meessage: 'Role successfully assigned to user!'
+      message: 'Role successfully assigned to user!'
     })
   }
   _assignRole();
@@ -336,5 +336,56 @@ module.exports = function (AppUser) {
       path: '/getUsersByRole'
     },
     returns: { arg: 'data', type: 'object', root: true }
+  });
+
+  AppUser.observe('after save', (ctx, next) => {
+    const Role = AppUser.app.models.Role;
+    const assignDefaultRole = async () => {
+      let roleFilter = {
+        where: {
+          name: 'PATIENT'
+        }
+      }
+      try {
+        let roleInstance = await Role.findOne(roleFilter, ctx.options);
+        if (!roleInstance) {
+          return;
+        }
+        let data = {
+          principalId: ctx.instance.id,
+          principalType: 'USER'
+        }
+        let roleMappingInstance = await roleInstance.principals.create(data, ctx.options);
+        next();      
+      } catch (error) {
+        console.error("ERROR >> ", error);
+        next();      
+      }
+    }
+
+    if (ctx.isNewInstance && !ctx.instance.emailVerified) {
+      assignDefaultRole();
+    } else {
+      next();
+    }
+  });
+
+  AppUser.afterRemote('findById', (ctx, instance, next) => {
+    const Role = AppUser.app.models.Role;
+    const getUserRole = async () => {
+      try {
+        let filter = {
+          principalId: instance.id,
+          principalType: 'USER'
+        }
+        let roles = await Role.getRoles(filter, { returnOnlyRoleNames: true });
+        roles = _.difference(roles, ['$owner', '$everyone', '$unauthenticated', '$authenticated']);
+        ctx.result.role = roles[0] || 'PATIENT';
+        next();
+      } catch (error) {
+        return next(error);
+      }
+    }
+    getUserRole();
   });
 };

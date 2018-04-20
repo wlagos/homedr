@@ -9,7 +9,7 @@ export const UserListRow = ({ user, onDelete }) => {
       <td>{user.email}</td>
       <td>
         <div className="btn-toolbar pull-right">
-          {/*<Link to={`/user/${user.id}`} className="btn btn-primary">Edit</Link>*/}
+          <Link to={`/user/${user.id}`} className="btn btn-primary">Edit</Link>
           {/* <a onClick={onDelete.bind(this, user)} className="btn btn-danger">Delete</a> */}
         </div>
       </td>

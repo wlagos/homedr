@@ -64,7 +64,7 @@ export function users(state = {}, action) {
       return {
         ...state,
         ...{
-          loadind: false,
+          loading: false,
           user: action.user
         }
       };
@@ -132,6 +132,23 @@ export function users(state = {}, action) {
         users: action.users
       };
     case userConstants.GET_USERS_BY_ROLE_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.error
+      };
+    case userConstants.ASSIGN_ROLE_REQUEST:
+      return {
+        ...state,
+        loading: true
+      };
+    case userConstants.ASSIGN_ROLE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        user: action.user
+      };
+    case userConstants.ASSIGN_ROLE_FAILURE:
       return {
         ...state,
         loading: false,

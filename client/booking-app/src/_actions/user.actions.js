@@ -12,6 +12,7 @@ export const userActions = {
   changePassword,
   getAll,
   getUsersByRole,
+  assignRole,
   getById,
   updateById,
   delete: _delete
@@ -171,6 +172,28 @@ function getUsersByRole(role) {
   function failure(error) { return { type: userConstants.GET_USERS_BY_ROLE_FAILURE, error } }
 }
 
+function assignRole(data) {
+  return dispatch => {
+    dispatch(request());
+
+    userService.assignRole(data)
+      .then(
+        resp => {
+          dispatch(success(resp))
+          dispatch(alertActions.success(resp.message));
+        },
+        error => {
+          dispatch(failure(error))
+          dispatch(alertActions.error(error));
+        }
+      );
+  };
+
+  function request() { return { type: userConstants.ASSIGN_ROLE_REQUEST } }
+  function success(resp) { return { type: userConstants.ASSIGN_ROLE_SUCCESS, resp } }
+  function failure(error) { return { type: userConstants.ASSIGN_ROLE_FAILURE, error } }
+}
+
 function getById(id) {
   return dispatch => {
     dispatch(request(id));
@@ -179,7 +202,6 @@ function getById(id) {
       .then(
         user => {
           dispatch(success(user));
-          history.push('/');
         },
         error => {
           dispatch(failure(error));
