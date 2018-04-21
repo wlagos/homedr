@@ -31,6 +31,7 @@ class EditBookingPage extends React.Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.updateStatus = this.updateStatus.bind(this);
+    this.checkRole = this.checkRole.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -123,6 +124,40 @@ class EditBookingPage extends React.Component {
     dispatch(bookingActions.updateById(this.props.bookingId, updateData));
   }
 
+  checkRole(operation) {
+    if (this.state.role == 'ADMIN') {
+      return false;
+    }
+    if (operation == 'UPDATE') {
+      if (this.state.role == 'DISPATCHER') {
+        if (_.includes(['PENDING', 'CONFIRMED'], this.state.booking.status)) {
+          return false;
+        }
+      }
+    } else if (operation == 'COMPLETE') {
+      if (this.state.role == 'DISPATCHER') {
+        if (this.state.booking.status === 'PENDING') {
+          return false;
+        }
+      } else if (this.state.role == 'PROVIDER') {
+        if (this.state.booking.status === 'CONFIRMED') {
+          return false;
+        }
+      }
+    } else if (operation == 'CANCEL') {
+      if (this.state.role == 'DISPATCHER') {
+        if (_.includes(['PENDING', 'CONFIRMED'], this.state.booking.status)) {
+          return false;
+        }
+      } else if (this.state.role == 'PROVIDER') {
+        if (this.state.booking.status === 'CONFIRMED') {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   render() {
     // const { loading } = this.props;
     const { booking, submitted, loading, status, role, providersLoading, users } = this.state;
@@ -131,7 +166,7 @@ class EditBookingPage extends React.Component {
     }
     return (
       <div>
-        <Link to="/bookings" className="btn btn-link">Go back</Link>
+        <Link to="/bookings" className="btn btn-link">Go back {role}</Link>
         <div className="col-md-6 col-md-offset-3">
           <h2>Booking</h2>
           <form name="form" onSubmit={this.handleSubmit}>
@@ -194,7 +229,7 @@ class EditBookingPage extends React.Component {
               (role === 'DISPATCHER' || role === 'ADMIN') ?
                 <div className={'form-group'}>
                   <label htmlFor="state">Provider</label>
-                  <select className="form-control" name="providerId" disabled={booking.status !== 'PENDING'} value={booking.providerId} onChange={this.handleChange}>
+                  <select className="form-control" name="providerId" disabled={booking.status !== 'PENDING' && role !== 'ADMIN'} value={booking.providerId} onChange={this.handleChange}>
                     <option value="">Select Provider</option>
                     {users.map(function (value, index) {
                       return (
@@ -235,13 +270,21 @@ class EditBookingPage extends React.Component {
               </div>
             */}
             <div className="form-group">
-              <button className="btn btn-primary" disabled={booking.status !== 'PENDING'} >Update</button>&nbsp;&nbsp;
               {
-                (role === 'PROVIDER' && role === 'ADMIN') ?
-                  <span><button className="btn btn-primary" disabled={booking.status !== 'CONFIRMED'} onClick={(event) => this.updateStatus('COMPLETED', event)}>Complete</button> &nbsp; &nbsp;</span>
+                (_.includes(['ADMIN', 'DISPATCHER'], role)) ?
+                  <span><button className="btn btn-primary" disabled={this.checkRole('UPDATE')} >Update</button> &nbsp; &nbsp;</span>
                   : <span></span>
               }
-              <button className="btn btn-danger" disabled={booking.status === 'COMPLETED' || booking.status === 'CANCELLED'} onClick={(event) => this.updateStatus('CANCELLED', event)}>Cancel</button>&nbsp;&nbsp;
+              {
+                (_.includes(['ADMIN', 'PROVIDER'], role)) ?
+                  <span><button className="btn btn-primary" disabled={this.checkRole('COMPLETE')} onClick={(event) => this.updateStatus('COMPLETED', event)}>Complete</button> &nbsp; &nbsp;</span>
+                  : <span></span>
+              }
+              {
+                (_.includes(['ADMIN', 'DISPATCHER', 'PROVIDER'], role)) ?
+                  <span><button className="btn btn-danger" disabled={this.checkRole('CANCEL')} onClick={(event) => this.updateStatus('CANCELLED', event)}>Cancel</button>&nbsp;&nbsp;</span>
+                  : <span></span>
+              }
               {loading &&
                 <img src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
               }
