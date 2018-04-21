@@ -166,7 +166,7 @@ class EditBookingPage extends React.Component {
     }
     return (
       <div>
-        <Link to="/bookings" className="btn btn-link">Go back {role}</Link>
+        <Link to="/bookings" className="btn btn-link">Go back</Link>
         <div className="col-md-6 col-md-offset-3">
           <h2>Booking</h2>
           <form name="form" onSubmit={this.handleSubmit}>
