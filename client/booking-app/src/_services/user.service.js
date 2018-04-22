@@ -189,8 +189,28 @@ function _delete(id) {
 
 function handleResponse(response) {
   if (!response.ok) {
-    return Promise.reject(response.statusText);
+    if ((response.status >= 400 && response.status < 500) && response.body) {
+      let errorData = response.json();
+      return errorData.then(function (errorObj) {
+        if (errorObj.error && errorObj.error.statusCode == 422) {
+          if (errorObj.error.details && errorObj.error.details.messages) {
+            let keys = Object.keys(errorObj.error.details.messages);
+            if (keys && keys.length) {
+              return Promise.reject(errorObj.error.details.messages[keys[0]][0]);
+            } else {
+              return Promise.reject(response.statusText);
+            }
+          } else {
+            return Promise.reject(response.statusText);
+          }
+        } else {
+          return Promise.reject(response.statusText);
+        }
+      }, function (error) {
+        return Promise.reject(response.statusText);
+      });
+    }
+  } else {
+    return response.json();
   }
-
-  return response.json();
 }
