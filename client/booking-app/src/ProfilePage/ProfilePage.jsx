@@ -75,7 +75,7 @@ class ProfilePage extends React.Component {
     // this.setState({ submitted: true });
     const { user, userId } = this.state;
     const { dispatch } = this.props;
-    const REQUIRED_FIELDS = ['address1', 'address2', 'city', 'state', 'country']
+    const REQUIRED_FIELDS = ['address1', 'city', 'state', 'country']
 
     let allValid = true;
     _.forEach(REQUIRED_FIELDS, (value, index) => {
@@ -198,12 +198,9 @@ class ProfilePage extends React.Component {
                 <div className="help-block">Address 1 is required</div>
               }
             </div>
-            <div className={'form-group' + (submitted && !user.address2 ? ' has-error' : '')}>
+            <div className={'form-group'}>
               <label htmlFor="address2">Address 2</label>
               <input type="text" className="form-control" name="address2" value={user.address2} onChange={this.handleChange} />
-              {submitted && !user.address2 &&
-                <div className="help-block">Address 2 is required</div>
-              }
             </div>
             <div className={'form-group' + (submitted && !user.city ? ' has-error' : '')}>
               <label htmlFor="city">City</label>

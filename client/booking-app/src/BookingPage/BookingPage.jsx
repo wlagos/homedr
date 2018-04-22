@@ -111,7 +111,7 @@ class BookingPage extends React.Component {
     // this.setState({ submitted: true });
     const { booking } = this.state;
     const { dispatch, currentUserId } = this.props;
-    const REQUIRED_FIELDS = ['address1', 'address2', 'city', 'state', 'country']
+    const REQUIRED_FIELDS = ['address1', 'city', 'state', 'country']
 
     let allValid = true;
     _.forEach(REQUIRED_FIELDS, (value, index) => {
@@ -219,12 +219,9 @@ class BookingPage extends React.Component {
                   <div className="help-block">Address 1 is required</div>
                 }
               </div>
-              <div className={'form-group' + (submitted && !booking.address2 ? ' has-error' : '')}>
+              <div className={'form-group'}>
                 <label htmlFor="address2">Address 2</label>
                 <input type="text" className="form-control" name="address2" value={booking.address2} onChange={this.handleChange} />
-                {submitted && !booking.address2 &&
-                  <div className="help-block">Address 2 is required</div>
-                }
               </div>
               <div className={'form-group' + (submitted && !booking.city ? ' has-error' : '')}>
                 <label htmlFor="city">City</label>
