@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as _ from 'lodash';
 import * as moment from 'moment';
-
+import Datetime from 'react-datetime';
+import '../style/picker.css';
 import { bookingActions, userActions } from '../_actions';
 
 import { statesList } from '../_constants';
@@ -26,12 +27,14 @@ class EditBookingPage extends React.Component {
       ...props,
       status: '',
       submitted: false,
-      role: 'PATIENT'
+      role: 'PATIENT',
+      inValidDate: false
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.updateStatus = this.updateStatus.bind(this);
     this.checkRole = this.checkRole.bind(this);
+    this.handleDateTime = this.handleDateTime.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -99,7 +102,7 @@ class EditBookingPage extends React.Component {
       }
     });
 
-    if (!booking['zip'] || (booking['zip'].toString().length !== 5)) {
+    if (!booking['zip'] || (booking['zip'].toString().length !== 5) || this.state.inValidDate) {
       allValid = false;
       return;
     }
@@ -158,18 +161,45 @@ class EditBookingPage extends React.Component {
     return true;
   }
 
+  handleDateTime(dateObj) {
+    if (typeof dateObj === 'string' || dateObj instanceof String) {
+      this.state.submitted = true;
+      this.state.inValidDate = true;
+      this.setState(this.state);
+    } else {
+      this.state.booking.requestedOn = dateObj.toDate();
+      this.state.inValidDate = false;
+      this.setState(this.state);
+    }
+  }
+
   render() {
     // const { loading } = this.props;
-    const { booking, submitted, loading, status, role, providersLoading, users } = this.state;
+    const { booking, submitted, loading, status, role, providersLoading, users, inValidDate } = this.state;
     if (loading || providersLoading) {
       return <div>Loading...</div>
     }
+    const valid = function (current) {
+      const yesterday = Datetime.moment().subtract(1, 'day');
+      return current.isAfter(yesterday);
+    };
+
+    const timeConstraints = { hours: { min: 9, max: 18 }, minutes: { step: 30 } }
     return (
       <div>
         <Link to="/bookings" className="btn btn-link">Go back</Link>
         <div className="col-md-6 col-md-offset-3">
           <h2>Booking</h2>
           <form name="form" onSubmit={this.handleSubmit}>
+            <div className={'form-group' + (submitted && !booking.requestedOn || inValidDate ? ' has-error' : '')}>
+              <label htmlFor="date">Requested On</label>
+              <Datetime value={moment(booking.requestedOn)} timeConstraints={timeConstraints} isValidDate={valid} onChange={this.handleDateTime} />
+              {(submitted && !booking.requestedOn &&
+                <div className="help-block">Requested On is required</div>)
+                || (submitted && inValidDate &&
+                  <div className="help-block">Select Valid date & time</div>)
+              }
+            </div>
             <div className={'form-group' + (submitted && !booking.address1 ? ' has-error' : '') + 'disabled'}>
               <label htmlFor="address1">Address 1</label>
               <input type="text" className="form-control" name="address1" value={booking.address1} onChange={this.handleChange} />
