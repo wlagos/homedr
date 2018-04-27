@@ -23,7 +23,7 @@ import {
   injectStripe,
 } from 'react-stripe-elements';
 
-import { userService } from '../_services';
+import { userService, bookingService } from '../_services';
 
 class BookingPage extends React.Component {
   constructor(props) {
@@ -42,7 +42,13 @@ class BookingPage extends React.Component {
       submitted: false,
       isFormValid: false,
       newCard: true,
-      inValidDate: true
+      inValidDate: true,
+      inValidTime: true,
+      timeConfig: {
+        startTime: 9,
+        endTime: 18,
+        minutesFromNow: 30
+      }
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -100,6 +106,17 @@ class BookingPage extends React.Component {
       .catch((err) => {
         console.error(err);
       });
+
+    bookingService.getConfig()
+      .then((configs) => {
+        this.state.timeConfig.startTime = configs.startTime ? parseInt(configs.startTime) : this.state.timeConfig.startTime;
+        this.state.timeConfig.endTime = configs.endTime ? parseInt(configs.endTime) : this.state.timeConfig.endTime;
+        this.state.timeConfig.minutesFromNow = configs.minutesFromNow ? parseInt(configs.minutesFromNow) : this.state.timeConfig.minutesFromNow;
+        this.setState(this.state);
+      })
+      .catch((err) => {
+        console.log('ERROR > GETTING > CONFIG > ', err)
+      });
   };
 
   handleChange(event) {
@@ -126,11 +143,14 @@ class BookingPage extends React.Component {
       }
     });
 
-    if (!booking['zip'] || (booking['zip'].toString().length !== 5) || this.state.inValidDate) {
+    if (!booking['zip'] || (booking['zip'].toString().length !== 5) || this.state.inValidDate || this.inValidTime) {
       allValid = false;
-      return;
     }
 
+    if(moment(booking.requestedOn).diff(moment(), 'minutes') < this.state.timeConfig.minutesFromNow) {
+      this.state.inValidTime = true;
+      allValid = false;
+    }
     if (allValid && (booking.state !== 'Select State')) {
       this.state.isFormValid = true;
     }
@@ -173,23 +193,29 @@ class BookingPage extends React.Component {
       this.state.submitted = true;
       this.state.inValidDate = true;
       this.setState(this.state);
+    } else if (dateObj.diff(moment(), 'minutes') < this.state.timeConfig.minutesFromNow) {
+      this.state.booking.requestedOn = dateObj.toDate();
+      this.state.inValidDate = false;      
+      this.state.inValidTime = true;
+      this.setState(this.state);
     } else {
       this.state.booking.requestedOn = dateObj.toDate();
       this.state.inValidDate = false;
+      this.state.inValidTime = false;
       this.setState(this.state);
     }
   }
 
   render() {
     const { registering } = this.props;
-    const { booking, submitted, isFormValid, paymentError, newCard, userData, defaultCard, inValidDate } = this.state;
+    const { booking, submitted, isFormValid, paymentError, newCard, userData, defaultCard, inValidDate, timeConfig, inValidTime } = this.state;
 
     const valid = function (current) {
       const yesterday = Datetime.moment().subtract(1, 'day');
       return current.isAfter(yesterday);
     };
 
-    const timeConstraints = { hours: { min: 9, max: 18 }, minutes: { step: 30 } }
+    const timeConstraints = { hours: { min: timeConfig.startTime, max: timeConfig.endTime }, minutes: { step: 30 } }
 
     return (
       <div>
@@ -237,13 +263,15 @@ class BookingPage extends React.Component {
           <div className="col-md-6 col-md-offset-3">
             <h2>Booking</h2>
             <form name="form" onSubmit={this.handleSubmit}>
-              <div className={'form-group' + (submitted && !booking.requestedOn || inValidDate ? ' has-error' : '')}>
+              <div className={'form-group' + (submitted && !booking.requestedOn || inValidDate || inValidTime ? ' has-error' : '')}>
                 <label htmlFor="date">Requested On</label>
                 <Datetime timeConstraints={timeConstraints} isValidDate={valid} onChange={this.handleDateTime} />
                 {(submitted && !booking.requestedOn &&
                   <div className="help-block">Requested On is required</div>)
                   || (submitted && inValidDate &&
                     <div className="help-block">Select Valid date & time</div>)
+                  || (submitted && inValidTime &&
+                    <div className="help-block">Time should be greater than {timeConfig.minutesFromNow} minutes from current time.</div>)
                 }
               </div>
               <div className={'form-group' + (submitted && !booking.address1 ? ' has-error' : '')}>

@@ -130,6 +130,15 @@ function charge(options, cb) {
   chargeBooking();
 }
 
+function getConfig(options, cb) {
+  let successObj = {
+    startTime: process.env.TIME_START,
+    endTime: process.env.TIME_END,
+    minutesFromNow:process.env.MINUTES_FROM_NOW 
+  }
+  cb(null, successObj)
+}
+
 module.exports = function (Booking) {
   // Function to validate zipcode
   function zipValidator(err) {
@@ -362,4 +371,17 @@ module.exports = function (Booking) {
     }
     next()
   })
+
+  // Creating Booking Custom
+  Booking.getConfig = getConfig;
+  Booking.remoteMethod('getConfig', {
+    accepts: [
+      { arg: 'options', type: 'object', http: 'optionsFromRequest' }
+    ],
+    http: {
+      verb: 'GET',
+      path: '/config'
+    },
+    returns: { arg: 'data', type: 'object', root: true }
+  });
 };

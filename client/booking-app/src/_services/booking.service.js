@@ -6,12 +6,14 @@ const GET_ALL_URL = `${HOST_URL}/api/Bookings`;
 const GET_BY_ID = `${HOST_URL}/api/Bookings`;
 const DELETE_URL = `${HOST_URL}/api/Bookings`;
 const UPDATE_BY_ID_URL = `${HOST_URL}/api/Bookings`;
+const GET_CONFIG_URL = `${HOST_URL}/api/Bookings/config`;
 
 export const bookingService = {
   create,
   getAll,
   getById,
   updateById,
+  getConfig,
   delete: _delete
 };
 
@@ -42,6 +44,14 @@ function getById(id) {
   };
   const URL = `${GET_BY_ID}/${id}`
   return fetch(URL, requestOptions).then(handleResponse);
+}
+
+function getConfig() {
+  const requestOptions = {
+    method: 'GET',
+    headers: { ...authHeader(), 'Content-Type': 'application/json' }
+  };
+  return fetch(GET_CONFIG_URL, requestOptions).then(handleResponse);
 }
 
 function updateById(id, data) {
