@@ -237,16 +237,18 @@ class BookingPage extends React.Component {
             </label>
             </div>
             {newCard ?
-              <StripeProvider apiKey={STRIPE_API_KEY}>
-                <Elements>
-                  <div>
-                    {paymentError &&
-                      <div className="form-group has-error">{paymentError}</div>
-                    }
-                    <SplitForm fontSize={'14px'} callback={this.handlePayment} />
-                  </div>
-                </Elements>
-              </StripeProvider>
+              <div id="payment">
+                <StripeProvider apiKey={STRIPE_API_KEY}>
+                  <Elements>
+                    <div>
+                      {paymentError &&
+                        <div className="form-group has-error">{paymentError}</div>
+                      }
+                      <SplitForm fontSize={'14px'} callback={this.handlePayment} />
+                    </div>
+                  </Elements>
+                </StripeProvider>
+              </div>
               :
               <div>
                 <div>

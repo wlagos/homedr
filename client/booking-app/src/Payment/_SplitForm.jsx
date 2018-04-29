@@ -61,53 +61,55 @@ class _SplitForm extends React.Component {
   };
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <label>
-          Card number
+      <div id="payment">
+        <form onSubmit={this.handleSubmit}>
+          <label>
+            Card number
           <CardNumberElement
-            onBlur={handleBlur}
-            onChange={handleChange}
-            onFocus={handleFocus}
-            onReady={handleReady}
-            {...createOptions(this.props.fontSize)}
-          />
-        </label>
-        <br/>
-        <label>
-          Expiration date
+              onBlur={handleBlur}
+              onChange={handleChange}
+              onFocus={handleFocus}
+              onReady={handleReady}
+              {...createOptions(this.props.fontSize)}
+            />
+          </label>
+          <br />
+          <label>
+            Expiration date
           <CardExpiryElement
-            onBlur={handleBlur}
-            onChange={handleChange}
-            onFocus={handleFocus}
-            onReady={handleReady}
-            {...createOptions(this.props.fontSize)}
-          />
-        </label>
-        <br/>        
-        <label>
-          CVC
+              onBlur={handleBlur}
+              onChange={handleChange}
+              onFocus={handleFocus}
+              onReady={handleReady}
+              {...createOptions(this.props.fontSize)}
+            />
+          </label>
+          <br />
+          <label>
+            CVC
           <CardCVCElement
-            onBlur={handleBlur}
-            onChange={handleChange}
-            onFocus={handleFocus}
-            onReady={handleReady}
-            {...createOptions(this.props.fontSize)}
-          />
-        </label>
-        <br/>        
-        <label>
-          Postal code
+              onBlur={handleBlur}
+              onChange={handleChange}
+              onFocus={handleFocus}
+              onReady={handleReady}
+              {...createOptions(this.props.fontSize)}
+            />
+          </label>
+          <br />
+          <label>
+            Postal code
           <PostalCodeElement
-            onBlur={handleBlur}
-            onChange={handleChange}
-            onFocus={handleFocus}
-            onReady={handleReady}
-            {...createOptions(this.props.fontSize)}
-          />
-        </label>
-        <br/>        
-        <button>Pay</button>
-      </form>
+              onBlur={handleBlur}
+              onChange={handleChange}
+              onFocus={handleFocus}
+              onReady={handleReady}
+              {...createOptions(this.props.fontSize)}
+            />
+          </label>
+          <br />
+          <button>Pay</button>
+        </form>
+      </div>
     );
   }
 }

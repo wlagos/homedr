@@ -1,4 +1,4 @@
-h2 {
+#payment h2 {
   color: #32325d;
   font-weight: 400;
   line-height: 50px;
@@ -7,20 +7,20 @@ h2 {
   padding: 0;
 }
 
-.Checkout {
+#payment .Checkout {
   margin: 0 auto;
   max-width: 800px;
   box-sizing: border-box;
   padding: 0 5px;
 }
 
-label {
+#payment label {
   color: #6b7c93;
   font-weight: 300;
   letter-spacing: 0.025em;
 }
 
-button {
+#payment button {
   white-space: nowrap;
   border: 0;
   outline: 0;
@@ -42,13 +42,13 @@ button {
   margin-top: 10px;
 }
 
-form {
+#payment form {
   margin-bottom: 40px;
   padding-bottom: 40px;
   border-bottom: 3px solid #e6ebf1;
 }
 
-button:hover {
+#payment button:hover {
   color: #fff;
   cursor: pointer;
   background-color: #7795f8;
@@ -56,7 +56,7 @@ button:hover {
   box-shadow: 0 7px 14px rgba(50, 50, 93, .10), 0 3px 6px rgba(0, 0, 0, .08);
 }
 
-.StripeElement {
+#payment .StripeElement {
   display: block;
   margin: 10px 0 20px 0;
   max-width: 500px;
