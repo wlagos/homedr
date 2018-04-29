@@ -6,6 +6,7 @@ import * as moment from 'moment';
 import { SplitForm } from '../Payment';
 import Datetime from 'react-datetime';
 import '../style/picker.css';
+import '../Payment/split-form.css';
 
 import { bookingActions } from '../_actions';
 
@@ -147,7 +148,7 @@ class BookingPage extends React.Component {
       allValid = false;
     }
 
-    if(moment(booking.requestedOn).diff(moment(), 'minutes') < this.state.timeConfig.minutesFromNow) {
+    if (moment(booking.requestedOn).diff(moment(), 'minutes') < this.state.timeConfig.minutesFromNow) {
       this.state.inValidTime = true;
       allValid = false;
     }
@@ -195,7 +196,7 @@ class BookingPage extends React.Component {
       this.setState(this.state);
     } else if (dateObj.diff(moment(), 'minutes') < this.state.timeConfig.minutesFromNow) {
       this.state.booking.requestedOn = dateObj.toDate();
-      this.state.inValidDate = false;      
+      this.state.inValidDate = false;
       this.state.inValidTime = true;
       this.setState(this.state);
     } else {
@@ -239,10 +240,10 @@ class BookingPage extends React.Component {
               <StripeProvider apiKey={STRIPE_API_KEY}>
                 <Elements>
                   <div>
-                    <SplitForm fontSize={'14px'} callback={this.handlePayment} />
                     {paymentError &&
-                      <div className="help-block">{paymentError}</div>
+                      <div className="form-group has-error">{paymentError}</div>
                     }
+                    <SplitForm fontSize={'14px'} callback={this.handlePayment} />
                   </div>
                 </Elements>
               </StripeProvider>

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as _ from 'lodash';
+import './split-form.css';
 
 import {
   CardElement,
@@ -71,6 +72,7 @@ class _SplitForm extends React.Component {
             {...createOptions(this.props.fontSize)}
           />
         </label>
+        <br/>
         <label>
           Expiration date
           <CardExpiryElement
@@ -81,6 +83,7 @@ class _SplitForm extends React.Component {
             {...createOptions(this.props.fontSize)}
           />
         </label>
+        <br/>        
         <label>
           CVC
           <CardCVCElement
@@ -91,6 +94,7 @@ class _SplitForm extends React.Component {
             {...createOptions(this.props.fontSize)}
           />
         </label>
+        <br/>        
         <label>
           Postal code
           <PostalCodeElement
@@ -101,6 +105,7 @@ class _SplitForm extends React.Component {
             {...createOptions(this.props.fontSize)}
           />
         </label>
+        <br/>        
         <button>Pay</button>
       </form>
     );
