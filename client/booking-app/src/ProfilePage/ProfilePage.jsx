@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as _ from 'lodash';
 import * as moment from 'moment';
+import Phone from 'react-phone-number-input';
+import { parseNumber, formatNumber, isValidNumber } from 'libphonenumber-js';
+import 'react-phone-number-input/rrui.css'
+import 'react-phone-number-input/style.css'
 
 import { userActions } from '../_actions';
 
@@ -28,6 +32,7 @@ class ProfilePage extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handlePasswordSubmit = this.handlePasswordSubmit.bind(this);
     this.inValidDob = this.inValidDob.bind(this);
+    this.handlePhoneNumberChange = this.handlePhoneNumberChange.bind(this);    
   }
 
   componentDidMount() {
@@ -85,6 +90,11 @@ class ProfilePage extends React.Component {
       }
     });
 
+    if(user.phoneNumber && !isValidNumber(user.phoneNumber || '')) {
+      allValid = false;
+      return;
+    }
+
     if (!user['zip']) {
       allValid = false;
     }
@@ -131,6 +141,11 @@ class ProfilePage extends React.Component {
       return false;
     }
     return true;
+  }
+
+  handlePhoneNumberChange(value) {
+    this.state.user.phoneNumber = value;
+    this.setState(this.state);
   }
 
   render() {
@@ -225,10 +240,23 @@ class ProfilePage extends React.Component {
                 <div className="help-block">Country is required</div>
               }
             </div>
-            <div className='form-group'>
+            {/*<div className='form-group'>
               <label htmlFor="phoneNumber">Phone</label>
               <input type="text" className="form-control" name="phoneNumber" value={user.phoneNumber} onChange={this.handleChange} />
-            </div>
+            </div>*/}
+            <div className={'form-group' + ((submitted && user.phoneNumber && !isValidNumber(user.phoneNumber || '')) ? ' has-error' : '')}>
+                <label htmlFor="phoneNumber">Phone</label>
+                <Phone
+                  className="form-control"
+                  country="US"
+                  placeholder="Start typing a phone number"
+                  value={user.phoneNumber}
+                  error={(isValidNumber(user.phoneNumber || '') ? undefined : 'Invalid phone number')}
+                  onChange={this.handlePhoneNumberChange} />
+                {submitted && user.phoneNumber && !isValidNumber(user.phoneNumber || '') &&
+                  <div className="help-block">Invalid Phone Number</div>
+                }
+              </div>
             <div className='form-group checkbox'>
               <label htmlFor="subscription"><input type="checkbox" name="subscription" value={user.subscription} checked={user.subscription} onChange={this.handleChange} /> Subscribe</label>
             </div>

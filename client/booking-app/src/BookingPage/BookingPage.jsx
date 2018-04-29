@@ -7,6 +7,10 @@ import { SplitForm } from '../Payment';
 import Datetime from 'react-datetime';
 import '../style/picker.css';
 import '../Payment/split-form.css';
+import Phone from 'react-phone-number-input';
+import { parseNumber, formatNumber, isValidNumber } from 'libphonenumber-js';
+import 'react-phone-number-input/rrui.css'
+import 'react-phone-number-input/style.css'
 
 import { bookingActions } from '../_actions';
 
@@ -58,6 +62,7 @@ class BookingPage extends React.Component {
     this.handleToggle = this.handleToggle.bind(this);
     this.doBooking = this.doBooking.bind(this);
     this.handleDateTime = this.handleDateTime.bind(this);
+    this.handlePhoneNumberChange = this.handlePhoneNumberChange.bind(this);    
   }
 
   componentDidMount() {
@@ -144,6 +149,11 @@ class BookingPage extends React.Component {
       }
     });
 
+    if(booking.phoneNumber && !isValidNumber(booking.phoneNumber || '')) {
+      allValid = false;
+      return;
+    }
+    
     if (!booking['zip'] || (booking['zip'].toString().length !== 5) || this.state.inValidDate || this.inValidTime) {
       allValid = false;
     }
@@ -205,6 +215,11 @@ class BookingPage extends React.Component {
       this.state.inValidTime = false;
       this.setState(this.state);
     }
+  }
+
+  handlePhoneNumberChange(value) {
+    this.state.booking.phoneNumber = value;
+    this.setState(this.state);
   }
 
   render() {
@@ -325,9 +340,22 @@ class BookingPage extends React.Component {
                   <div className="help-block">Country is required</div>
                 }
               </div>
-              <div className='form-group'>
+              {/*<div className='form-group'>
                 <label htmlFor="phoneNumber">Phone</label>
                 <input type="text" className="form-control" name="phoneNumber" value={booking.phoneNumber} onChange={this.handleChange} />
+              </div>*/}
+              <div className={'form-group' + ((submitted && booking.phoneNumber && !isValidNumber(booking.phoneNumber || '')) ? ' has-error' : '')}>
+                <label htmlFor="phoneNumber">Phone</label>
+                <Phone
+                  className="form-control"
+                  country="US"
+                  placeholder="Start typing a phone number"
+                  value={booking.phoneNumber}
+                  error={(isValidNumber(booking.phoneNumber || '') ? undefined : 'Invalid phone number')}
+                  onChange={this.handlePhoneNumberChange} />
+                {submitted && booking.phoneNumber && !isValidNumber(booking.phoneNumber || '') &&
+                  <div className="help-block">Invalid Phone Number</div>
+                }
               </div>
               <div className="form-group">
                 <button className="btn btn-primary">Book</button>
