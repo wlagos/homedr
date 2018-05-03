@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as _ from 'lodash';
 import * as moment from 'moment';
+import * as momentTZ from 'moment-timezone';
+
 import { SplitForm } from '../Payment';
 import Datetime from 'react-datetime';
 import '../style/picker.css';
@@ -62,7 +64,7 @@ class BookingPage extends React.Component {
     this.handleToggle = this.handleToggle.bind(this);
     this.doBooking = this.doBooking.bind(this);
     this.handleDateTime = this.handleDateTime.bind(this);
-    this.handlePhoneNumberChange = this.handlePhoneNumberChange.bind(this);    
+    this.handlePhoneNumberChange = this.handlePhoneNumberChange.bind(this);
   }
 
   componentDidMount() {
@@ -115,8 +117,9 @@ class BookingPage extends React.Component {
 
     bookingService.getConfig()
       .then((configs) => {
-        this.state.timeConfig.startTime = configs.startTime ? parseInt(configs.startTime) : this.state.timeConfig.startTime;
-        this.state.timeConfig.endTime = configs.endTime ? parseInt(configs.endTime) : this.state.timeConfig.endTime;
+        this.state.timeConfig.timeZone = configs.timeZone && configs.timeZone;
+        this.state.timeConfig.startTime = configs.startTime ? moment(moment.tz(configs.startTime, 'HH:mm', configs.timeZone).format()).format('HH:mm') : this.state.timeConfig.startTime;
+        this.state.timeConfig.endTime = configs.endTime ? moment(moment.tz(configs.endTime, 'HH:mm', configs.timeZone).format()).format('HH:mm') : this.state.timeConfig.endTime;
         this.state.timeConfig.minutesFromNow = configs.minutesFromNow ? parseInt(configs.minutesFromNow) : this.state.timeConfig.minutesFromNow;
         this.setState(this.state);
       })
@@ -149,16 +152,46 @@ class BookingPage extends React.Component {
       }
     });
 
-    if(booking.phoneNumber && !isValidNumber(booking.phoneNumber || '')) {
+    if (booking.phoneNumber && !isValidNumber(booking.phoneNumber || '')) {
       allValid = false;
       return;
     }
-    
+
     if (!booking['zip'] || (booking['zip'].toString().length !== 5) || this.state.inValidDate || this.inValidTime) {
       allValid = false;
+      return;
     }
 
-    if (moment(booking.requestedOn).diff(moment(), 'minutes') < this.state.timeConfig.minutesFromNow) {
+    if (booking.requestedOn) {
+      let startDate = moment(booking.requestedOn).format('MM/DD/YYYY');
+      let endDate = moment(booking.requestedOn).format('MM/DD/YYYY');
+      // if (this.state.timeConfig.startTime > this.state.timeConfig.endTime) {
+      //   endDate = moment(booking.requestedOn).add(1, 'day').format('MM/DD/YYYY');
+      // }
+      let tzStartDate = moment(momentTZ(`${startDate} ${this.state.timeConfig.startTime.toString()}`, 'MM/DD/YYYY HH:mm', this.state.timeConfig.timeZone));
+      let tzEndDate = moment(momentTZ(`${endDate} ${this.state.timeConfig.endTime.toString()}`, 'MM/DD/YYYY HH:mm', this.state.timeConfig.timeZone));
+      if (this.state.timeConfig.startTime > this.state.timeConfig.endTime) {
+        let currentRequested = moment(booking.requestedOn);
+        let cond1 = currentRequested.isAfter(tzStartDate);
+        let cond2 = currentRequested.isBefore(moment().add(1, 'day').startOf('day'));
+        let cond3 = currentRequested.isBefore(tzEndDate);
+        let cond4 = moment(booking.requestedOn).isAfter(moment().startOf('day'));
+        if ((cond1 && cond2) ||
+          (cond3 && cond4)) {
+          this.state.inValidDate = false;
+        } else {
+          this.state.inValidDate = true;         
+          allValid = false; 
+        }
+      } else if (!(moment(booking.requestedOn).isAfter(tzStartDate) && moment(booking.requestedOn).isBefore(tzEndDate))) {
+        this.state.inValidDate = true;
+        allValid = false;
+      } else {
+        this.state.inValidDate = false;
+      }
+    }
+
+    if (allValid && moment(booking.requestedOn).diff(moment(), 'minutes') < this.state.timeConfig.minutesFromNow) {
       this.state.inValidTime = true;
       allValid = false;
     }
@@ -231,7 +264,7 @@ class BookingPage extends React.Component {
       return current.isAfter(yesterday);
     };
 
-    const timeConstraints = { hours: { min: timeConfig.startTime, max: timeConfig.endTime }, minutes: { step: 30 } }
+    const timeConstraints = { /*hours: { min: timeConfig.startTime, max: timeConfig.endTime },*/ minutes: { step: 30 } }
 
     return (
       <div>
@@ -287,7 +320,7 @@ class BookingPage extends React.Component {
                 {(submitted && !booking.requestedOn &&
                   <div className="help-block">Requested On is required</div>)
                   || (submitted && inValidDate &&
-                    <div className="help-block">Select Valid date & time</div>)
+                    <div className="help-block">Select Valid date & time. Time must be between {timeConfig.startTime} - {timeConfig.endTime}</div>)
                   || (submitted && inValidTime &&
                     <div className="help-block">Time should be greater than {timeConfig.minutesFromNow} minutes from current time.</div>)
                 }

@@ -134,7 +134,8 @@ function getConfig(options, cb) {
   let successObj = {
     startTime: process.env.TIME_START,
     endTime: process.env.TIME_END,
-    minutesFromNow:process.env.MINUTES_FROM_NOW 
+    minutesFromNow: process.env.MINUTES_FROM_NOW,
+    timeZone: process.env.TIME_ZONE 
   }
   cb(null, successObj)
 }
@@ -322,10 +323,10 @@ module.exports = function (Booking) {
       return next();
     }
     ctx.hookState.oldStatus = ctx.currentInstance.status;
-    if(ctx.data && ctx.data.status == 'COMPLETED' && ctx.currentInstance.status != 'COMPLETED') {
+    if (ctx.data && ctx.data.status == 'COMPLETED' && ctx.currentInstance.status != 'COMPLETED') {
       ctx.data.completedDate = new Date();
     }
-    if(ctx.data && ctx.data.status == 'CANCELLED' && ctx.currentInstance.status != 'CANCELLED') {
+    if (ctx.data && ctx.data.status == 'CANCELLED' && ctx.currentInstance.status != 'CANCELLED') {
       ctx.data.cancelledDate = new Date();
     }
     next();
