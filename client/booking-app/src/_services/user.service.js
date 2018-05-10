@@ -38,7 +38,7 @@ function login(data) {
   return fetch(URL, requestOptions)
     .then(response => {
       if (!response.ok) {
-        return Promise.reject(response.statusText);
+        return handleErrorResponse(response);
       }
 
       return response.json();
@@ -117,7 +117,7 @@ function forgetPassword(user) {
 
   return fetch(FORGET_PASSWORD_URL, requestOptions).then((response) => {
     if (!response.ok) {
-      return Promise.reject(response.statusText);
+      return handleErrorResponse(response);
     }
     return user;
   });
@@ -132,7 +132,7 @@ function resetPassword(token, data) {
 
   return fetch(RESET_PASSWORD_URL, requestOptions).then((response) => {
     if (!response.ok) {
-      return Promise.reject(response.statusText);
+      return handleErrorResponse(response);
     }
     return data;
   });
@@ -147,6 +147,9 @@ function changePassword(id, data) {
   return fetch(CHANGE_PASSWORD_URL, requestOptions).then((result) => {
     if (result.status == 204) {
       return {};
+    }
+    if (!result.ok) {
+      return handleErrorResponse(result);
     }
     return result.json()
   }).then((response) => {
@@ -187,30 +190,38 @@ function _delete(id) {
   return fetch('/users/' + id, requestOptions).then(handleResponse);
 }
 
-function handleResponse(response) {
-  if (!response.ok) {
-    if ((response.status >= 400 && response.status < 500) && response.body) {
-      let errorData = response.json();
-      return errorData.then(function (errorObj) {
-        if (errorObj.error && errorObj.error.statusCode == 422) {
-          if (errorObj.error.details && errorObj.error.details.messages) {
-            let keys = Object.keys(errorObj.error.details.messages);
-            if (keys && keys.length) {
-              return Promise.reject(errorObj.error.details.messages[keys[0]][0]);
-            } else {
-              return Promise.reject(response.statusText);
-            }
+function handleErrorResponse(response) {
+  if ((response.status >= 400 && response.status < 500) && response.body) {
+    let errorData = response.json();
+    return errorData.then(function (errorObj) {
+      if (errorObj.error && errorObj.error.statusCode == 422) {
+        if (errorObj.error.details && errorObj.error.details.messages) {
+          let keys = Object.keys(errorObj.error.details.messages);
+          if (keys && keys.length) {
+            return Promise.reject(errorObj.error.details.messages[keys[0]][0]);
           } else {
-            return Promise.reject(response.statusText);
+            return Promise.reject(errorObj.error.message || response.statusText);
           }
         } else {
-          return Promise.reject(response.statusText);
+          return Promise.reject(errorObj.error.message || response.statusText);
         }
-      }, function (error) {
-        return Promise.reject(response.statusText);
-      });
-    }
+      } else {
+        return Promise.reject(errorObj.error.message || response.statusText);
+      }
+    }, function (error) {
+      return Promise.reject(error.message || response.statusText);
+    });
   } else {
+    return Promise.reject(response.statusText)
+  }
+}
+function handleResponse(response) {
+  if (!response.ok) {
+    return handleErrorResponse(response);
+  } else {
+    if (response.status == 204) {
+      return {};
+    }
     return response.json();
   }
 }
