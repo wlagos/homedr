@@ -185,6 +185,13 @@ class EditBookingPage extends React.Component {
     };
 
     const timeConstraints = { hours: { min: 9, max: 18 }, minutes: { step: 30 } }
+
+    const disableProviderList = function (status, role) {
+      if (role == 'DISPATCHER' && _.includes(['PENDING', 'CONFIRMED'], status)) {
+        return false;
+      }
+      return status !== 'PENDING' && role !== 'ADMIN'
+    }
     return (
       <div>
         <Link to="/bookings" className="btn btn-link">Go back</Link>
@@ -256,8 +263,8 @@ class EditBookingPage extends React.Component {
               (role === 'DISPATCHER' || role === 'ADMIN') ?
                 <div className={'form-group'}>
                   <label htmlFor="state">Provider</label>
-                  <select className="form-control" name="providerId" disabled={booking.status !== 'PENDING' && role !== 'ADMIN'} value={booking.providerId} onChange={this.handleChange}>
-                    <option value="">Select Provider</option>
+                  <select className="form-control" name="providerId" disabled={disableProviderList(booking.status, role)} value={booking.providerId} onChange={this.handleChange}>
+                    {booking.status == 'PENDING' && <option value="">Select Provider</option>}
                     {users.map(function (value, index) {
                       return (
                         <option key={value.id} value={value.id}>{value.firstName ? value.firstName : ''} {value.lastName ? value.lastName : ''}</option>
